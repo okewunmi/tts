@@ -2,11 +2,19 @@ import { StyleSheet, Text, View,  ActivityIndicator, } from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useRef } from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
+import { useNavigation , router} from "expo-router";
 const index = () => {
-  
+  const navigation = useNavigation();
+     useEffect(() => {
+    const timer = setTimeout(() => {
+      router.push("/intro1"); // Navigate to intro1.js after 5 seconds
+    }, 5000);
+
+    return () => clearTimeout(timer); // Clear timer on component unmount
+  }, [navigation]);
+ 
   return (
-    
+ 
       <SafeAreaView style={styles.safe}>
         <View style={styles.view}>
           <View style={styles.Logo}>
