@@ -1,11 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Path, Defs, ClipPath, Rect } from "react-native-svg";
+import image from "../../assets/images/home.png"
 
 const into = () => {
   return (
     <SafeAreaView style={styles.safe}>
+      <View style={styles.img} >
+        <Image source={ image} style={styles.image}/>
+      </View>
       <View style={styles.view} >
         <View style={styles.curve}></View>
         <View style={styles.box}>
@@ -13,7 +16,19 @@ const into = () => {
             <Text style={styles.txt}>Transform Text into Speech with AI</Text>
              <Text style={styles.para}>Welcome to Voxify, the Ai-powered app that brign your text to life. Convert any texts to high-quality in a few taps. </Text>
           </View>
-        
+          <View style={styles.boxDot}>
+            <View style={styles.dot}></View>
+            <View style={styles.dots}></View>
+             <View style={styles.dots}></View>
+          </View>
+          <View style={styles.boxbtn}>
+            <TouchableOpacity style={[styles.btn, styles.btnGrey]}>
+              <Text style={styles.btntxt1}> Skip </Text>
+            </TouchableOpacity>
+             <TouchableOpacity style={[styles.btn, styles.btnBlue]}>
+              <Text style={styles.btntxt2}>Continue</Text>
+              </TouchableOpacity>
+        </View>
         </View>
       </View>
     </SafeAreaView>
@@ -37,7 +52,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     left: 0,
-    
   },
   
   curve: {
@@ -45,21 +59,99 @@ const styles = StyleSheet.create({
     height: 120,
     backgroundColor: '#3273F6',
     marginTop: -65,
-    borderRadius: '100%'
+    borderRadius: '100%',
+    
   },
   box: {
     padding: 20,
     justifyContent: 'center',
-     alignItems: 'center',
+    alignItems: 'center',
+    zIndex: 300,
+    backgroundColor: '#fff'
+     
   },
   boxTxt: { 
-    width: '90%',
-    
+    width: '99%',
+    marginTop: 10
   },
   txt: {
     textAlign: 'center',
     fontSize: 27,
-    lineHeight: 40,
+    lineHeight: 35,
     fontWeight: '700'
+  },
+  para: {
+    textAlign: 'center',
+    fontSize: 16,
+    marginTop: 15,
+    lineHeight: 23,
+    color: 'grey'
+  },
+  boxDot: {
+    gap: 7,
+    marginTop: 20,
+    flexDirection: 'row'
+  },
+  dot: {
+    height: 6,
+    width: 30,
+    borderRadius: 20,
+    backgroundColor: '#3273F6'
+  },
+  img: {
+    width: '80%',
+    height: '80%',
+    alignItems: 'center',
+    justifyContent: "center",
+    zIndex: 100,
+    margin: 30,
+    // borderRadius: 30,
+      borderWidth: 4,
+
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    // width: ,
+    // height: 625,
+    objectFit: 'contain',
+    //  borderRadius: 20,
+  },
+  dots: {
+    height: 6,
+    width: 10,
+    borderRadius: 20,
+    backgroundColor: '#cccc'
+  },
+  boxbtn: {
+    marginTop: 55,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: '99%'
+  },
+  btn: {
+    // padding: 13,
+    width: 150,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+    //  backgroundColor: '#3273F6',
+  },
+  btntxt1: {
+    color: '#3273F6',
+    fontSize: 16,
+  },
+  btntxt2: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  btnGrey: {
+    backgroundColor: '#eeee',
+  },
+  btnBlue: {
+    backgroundColor: '#3273F6',
   }
 })

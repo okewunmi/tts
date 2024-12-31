@@ -12,7 +12,7 @@ const Layout = () => {
         <Stack.Screen name="signIn" options={{ headerShown: false }} />
         <Stack.Screen name="signOut" options={{ headerShown: false }} />
       </Stack>
-      <StatusBar />
+       <StatusBar style="light" />
     </>
   );
 };
