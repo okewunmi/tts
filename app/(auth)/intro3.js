@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
-import image from "../../assets/images/home.png"
+import image from "../../assets/images/voice.png"
 import { router} from "expo-router";
 const into = () => {
   return (
@@ -17,22 +17,21 @@ const into = () => {
              <Text style={styles.para}>Welcome to Voxify, the Ai-powered app that brign your text to life. Convert any texts to high-quality in a few taps. </Text>
           </View>
           <View style={styles.boxDot}>
-             <View style={styles.dot}></View>
             <View style={styles.dots}></View>
              <View style={styles.dots}></View>
+              <View style={styles.dot}></View>
           </View>
           <View style={styles.boxbtn}>
-            <TouchableOpacity style={[styles.btn, styles.btnGrey]} onPress={() => {
-              router.replace("/signIn")}}>
-              <Text style={styles.btntxt1}> Skip </Text>
+            <TouchableOpacity style={[styles.btn, styles.btnBlue]} onPress={() => {
+              router.replace("/welcome")}}>
+              <Text style={styles.btntxt1}> Continue </Text>
             </TouchableOpacity>
-             <TouchableOpacity style={[styles.btn, styles.btnBlue]} onPress={() => {
-              router.replace("/intro2")}}>
-              <Text style={styles.btntxt2}>Continue</Text>
-              </TouchableOpacity>
+             
         </View>
         </View>
+        
       </View>
+      
     </SafeAreaView>
   )
 }
@@ -103,6 +102,7 @@ const styles = StyleSheet.create({
      borderRadius: 30,
       borderWidth: 3,
       zIndex: 100,
+      
   },
   image: {
     width: '100%',
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     // width: ,
     // height: 625,
     objectFit: 'fill',
-     borderRadius: 30,
+     borderRadius: 26,
   },
   dots: {
     height: 6,
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     // padding: 13,
-    width: 150,
+    width: '100%',
     height: 45,
     alignItems: 'center',
     justifyContent: 'center',
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     //  backgroundColor: '#3273F6',
   },
   btntxt1: {
-    color: '#3273F6',
+    color: '#fff',
     fontSize: 16,
   },
   btntxt2: {

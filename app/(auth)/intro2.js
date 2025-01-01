@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
-import image from "../../assets/images/home.png"
+import image from "../../assets/images/scan.png"
 import { router} from "expo-router";
 const into = () => {
   return (
@@ -17,8 +17,8 @@ const into = () => {
              <Text style={styles.para}>Welcome to Voxify, the Ai-powered app that brign your text to life. Convert any texts to high-quality in a few taps. </Text>
           </View>
           <View style={styles.boxDot}>
-             <View style={styles.dot}></View>
             <View style={styles.dots}></View>
+             <View style={styles.dot}></View>
              <View style={styles.dots}></View>
           </View>
           <View style={styles.boxbtn}>
@@ -27,7 +27,7 @@ const into = () => {
               <Text style={styles.btntxt1}> Skip </Text>
             </TouchableOpacity>
              <TouchableOpacity style={[styles.btn, styles.btnBlue]} onPress={() => {
-              router.replace("/intro2")}}>
+              router.replace("/intro3")}}>
               <Text style={styles.btntxt2}>Continue</Text>
               </TouchableOpacity>
         </View>
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
      borderRadius: 30,
       borderWidth: 3,
       zIndex: 100,
+
   },
   image: {
     width: '100%',
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
     // width: ,
     // height: 625,
     objectFit: 'fill',
-     borderRadius: 30,
+     borderRadius: 26,
   },
   dots: {
     height: 6,

@@ -9,10 +9,13 @@ const Layout = () => {
           contentStyle: { backgroundColor: "#3273F6" }, // Set background color
         }}>
           <Stack.Screen name="intro1" options={{ headerShown: false }} />
+           <Stack.Screen name="intro2" options={{ headerShown: false }} />
+            <Stack.Screen name="intro3" options={{ headerShown: false }} />
+            <Stack.Screen name="welcome" options={{ headerShown: false }} />
         <Stack.Screen name="signIn" options={{ headerShown: false }} />
-        <Stack.Screen name="signOut" options={{ headerShown: false }} />
+        <Stack.Screen name="signUp" options={{ headerShown: false }} />
       </Stack>
-       <StatusBar style="light" />
+       <StatusBar style="auto" />
     </>
   );
 };
