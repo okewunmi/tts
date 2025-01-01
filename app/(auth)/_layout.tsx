@@ -12,8 +12,8 @@ const Layout = () => {
         <Stack.Screen name="intro2" options={{ headerShown: false }} />
         <Stack.Screen name="intro3" options={{ headerShown: false }} />
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
-        <Stack.Screen name="signIn" options={{ headerBackVisible: true, }} />
-        <Stack.Screen name="signUp" options={{ headerBackVisible: true, }} />
+        <Stack.Screen name="signIn" options={{ headerBackVisible: true, headerTitle: '' }} />
+        <Stack.Screen name="signUp" options={{ headerBackVisible: true, headerTitle: '' }} />
       </Stack>
       <StatusBar style="auto" />
     </>
