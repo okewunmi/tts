@@ -27,7 +27,7 @@ const into = () => {
             <TouchableOpacity
               style={[styles.btn, styles.btnGrey]}
               onPress={() => {
-                router.replace("/signIn");
+                router.push("/signIn");
               }}
             >
               <Text style={styles.btntxt1}> Skip </Text>
@@ -35,7 +35,7 @@ const into = () => {
             <TouchableOpacity
               style={[styles.btn, styles.btnBlue]}
               onPress={() => {
-                router.replace("/intro2");
+                router.push("/intro2");
               }}
             >
               <Text style={styles.btntxt2}>Continue</Text>

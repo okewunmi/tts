@@ -48,7 +48,7 @@ const signIn = () => {
         <TouchableOpacity
           style={styles.signbtn}
           onPress={() => {
-            router.replace("/signUp");
+            router.push("/signUp");
           }}
         >
           <Text style={styles.signTxt}> Sign Up</Text>
@@ -56,7 +56,7 @@ const signIn = () => {
         <TouchableOpacity
           style={styles.signInbtn}
           onPress={() => {
-            router.replace("/signIn");
+            router.push("/signIn");
           }}
         >
           <Text style={styles.signInTxt}> Sign In</Text>

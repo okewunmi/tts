@@ -27,7 +27,7 @@ const into = () => {
             <TouchableOpacity
               style={[styles.btn, styles.btnBlue]}
               onPress={() => {
-                router.replace("/welcome");
+                router.push("/welcome");
               }}
             >
               <Text style={styles.btntxt1}> Continue </Text>

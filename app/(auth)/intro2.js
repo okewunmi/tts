@@ -23,11 +23,11 @@ const into = () => {
           </View>
           <View style={styles.boxbtn}>
             <TouchableOpacity style={[styles.btn, styles.btnGrey]} onPress={() => {
-              router.replace("/signIn")}}>
+              router.push("/signIn")}}>
               <Text style={styles.btntxt1}> Skip </Text>
             </TouchableOpacity>
              <TouchableOpacity style={[styles.btn, styles.btnBlue]} onPress={() => {
-              router.replace("/intro3")}}>
+              router.push("/intro3")}}>
               <Text style={styles.btntxt2}>Continue</Text>
               </TouchableOpacity>
         </View>
