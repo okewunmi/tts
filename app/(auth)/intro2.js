@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#cccc'
   },
   boxbtn: {
-    marginTop: 55,
+    marginTop: 85,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
