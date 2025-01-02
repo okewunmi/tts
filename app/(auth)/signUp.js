@@ -8,10 +8,7 @@ import {
 import Checkbox from 'expo-checkbox';
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, {useState} from "react";
-import Fontisto from "@expo/vector-icons/Fontisto";
-import EvilIcons from "@expo/vector-icons/EvilIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { CheckBox } from "react-native-web";
 import {Link} from 'expo-router'
 
 const signUp = () => {
