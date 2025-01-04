@@ -4,15 +4,86 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
-import Checkbox from 'expo-checkbox';
+import Checkbox from "expo-checkbox";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import {Link} from 'expo-router'
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { router , Link } from "expo-router";
+import {auth, db, } from "../../lib/firebase" ;
+import * as Facebook from "expo-auth-session/providers/facebook";
+import { FacebookAuthProvider, signInWithCredential,createUserWithEmailAndPassword } from "firebase/auth";
+
+import { setDoc, doc } from "firebase/firestore";
+
 
 const signUp = () => {
-   const [isChecked, setChecked] = useState(false);
+  const [isChecked, setChecked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+const [request, response, promptAsync] = Facebook.useAuthRequest({
+  clientId: "2023316988113650",
+});
+  
+  useEffect(() => {
+  if (response?.type === "success") {
+    const { access_token } = response.params;
+    const credential = FacebookAuthProvider.credential(access_token);
+    signInWithCredential(auth, credential)
+      .then((user) => Alert.alert("Success", `Logged in as ${user.email}`))
+      .catch((error) =>
+        Alert.alert("Facebook Sign-In Failed", error.message || "An error occurred.")
+      );
+  }
+}, [response]);
+
+const handleFacebookSignIn = () => {
+  promptAsync();
+};
+
+  
+// Handle Sign Up
+  const handleSignUp = async () => {
+    if ( !form.email || !form.password) {
+      Alert.alert("Error", " All fields are required.");
+      return;
+    }
+    const { email, password } = form;
+    setIsSubmitting(true);
+    try {
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password
+      );
+      const user = result.user;
+      // Save additional user info to Firestore
+      await setDoc(doc(db, "user", user.uid), {
+        uid: user.uid,
+        accountId: user.uid,
+        email,
+        password,
+      });
+      Alert.alert("Success", "Account created successfully!");
+      router.replace("/signIn");
+      return result;
+    } catch (error) {
+      Alert.alert("Sign Up Failed", error.message || "An error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.view}>
@@ -25,45 +96,98 @@ const signUp = () => {
       <View style={styles.inputBox}>
         <View style={styles.Box}>
           <Text style={styles.label}>Email </Text>
-          <TouchableOpacity style={styles.touchInput}>
+          <View style={styles.touchInput}>
             <MaterialCommunityIcons
               name="email-outline"
               size={22}
               color="black"
             />
-            <TextInput placeholder="Email" style={styles.input} />
-          </TouchableOpacity>
+            <TextInput
+              placeholder="Email"
+              keyboardType="email-address"
+              style={styles.input}
+              value={form.email}
+            onChangeText={(text) => setForm({ ...form, email: text })}
+            />
+          </View>
         </View>
         <View style={styles.Box}>
           <Text style={styles.label}>Password </Text>
-          <TouchableOpacity style={styles.touchInput}>
+          <View style={styles.touchInput}>
             <MaterialCommunityIcons
               name="lock-outline"
               size={22}
               color="black"
             />
-            <TextInput placeholder="Password" style={styles.input} />
-          </TouchableOpacity>
+            <TextInput
+              placeholder="Password"
+              secureTextEntry
+              style={styles.input}
+              value={form.password}
+            onChangeText={(text) => setForm({ ...form, password: text })}
+            />
+            <TouchableOpacity>
+              <MaterialCommunityIcons name="eye-off-outline" size={22} color="black" />
+            </TouchableOpacity>
+          </View>
+         
         </View>
         <View style={styles.boxprivacy}>
           <Checkbox
-          style={styles.checkbox}
-          value={isChecked}
-          onValueChange={setChecked}
-          color={isChecked ? '' : '#3273F6'}
-        />
+            style={styles.checkbox}
+            value={isChecked}
+            onValueChange={setChecked}
+            color={isChecked ? "" : "#3273F6"}
+          />
           <Text style={styles.privacy}>I agreed to Voxify </Text>
-          <Link href='' style={styles.privacy2}>Terms & Conditions. </Link>
+          <Link href="" style={styles.privacy2}>
+            Terms & Conditions.{" "}
+          </Link>
         </View>
         <View style={styles.boxsignIn}>
-          <Text style={styles.privacy}>Already have an account?  </Text>
-          <Link href='/signIn' style={styles.privacy2}>Sign in </Link>
+          <Text style={styles.privacy}>Already have an account? </Text>
+          <Link href="/signIn" style={styles.privacy2}>
+            Sign in{" "}
+          </Link>
         </View>
 
-        <View style={ styles.other}>
+        <View style={styles.other}>
           <View style={styles.line}></View>
           <Text style={styles.othertext}>or continue with</Text>
         </View>
+      </View>
+      <View style={styles.icons}>
+        <TouchableOpacity style={styles.icon}>
+          <View style={styles.group}>
+            <AntDesign name="google" size={22} color="black" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.icon}>
+          <View style={styles.group}>
+            <AntDesign name="apple1" size={22} color="black" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.icon} onPress={handleFacebookSignIn}>
+          <View style={styles.group}>
+            <FontAwesome5 name="facebook" size={22} color="#3273F6" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.icon} >
+          <View style={styles.group}>
+            <FontAwesome6 name="x-twitter" size={22} color="black" />
+          </View>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.sign}>
+        <TouchableOpacity
+          style={styles.signbtn}
+          onPress={handleSignUp}
+            disabled={isSubmitting}
+        >
+          <Text style={styles.signTxt}>
+            {isSubmitting ? (<ActivityIndicator size="small" color="#fff" />) : "Sign up"}
+          </Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -96,9 +220,22 @@ const styles = StyleSheet.create({
     color: "grey",
   },
   privacy: {
-    fontSize: 13,
-    color: "grey",
+    fontSize: 14,
+    color: "#17202a",
   },
+  signbtn: {
+    backgroundColor: "#3273F6",
+    borderRadius: 30,
+    width: 320,
+    padding: 12,
+    marginTop: 120,
+  },
+  signTxt: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: 17,
+  },
+
   inputBox: {
     marginTop: 40,
     gap: 22,
@@ -116,44 +253,59 @@ const styles = StyleSheet.create({
     backgroundColor: "#ecf0f1",
     flexDirection: "row",
     gap: 5,
+    height: 40,
     alignItems: "center",
+    // justifyContent: "space-between"
   },
   input: {
-    height: "100%",
+    height: 40,
+    width: "80%"
   },
   boxprivacy: {
     flexDirection: "row",
   },
   boxsignIn: {
     flexDirection: "row",
-    justifyContent: 'center'
+    justifyContent: "center",
+    marginTop: 10,
   },
   checkbox: {
     marginRight: 15,
-   
   },
   privacy2: {
-    color: '#3273F6',
-    fontSize: 13,
+    color: "#3273F6",
+    fontSize: 14,
   },
   other: {
     marginTop: 30,
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-     
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
   },
   othertext: {
-    color: 'grey',
+    color: "grey",
     paddingHorizontal: 8,
     fontSize: 18,
     marginTop: -15,
-  backgroundColor: '#fff'
+    backgroundColor: "#fff",
   },
   line: {
     borderBottomWidth: 2,
-    borderColor: '#ecf0f1',
-    width: '100%',
-  }
-  
+    borderColor: "#ecf0f1",
+    width: "100%",
+  },
+  icons: {
+    marginTop: 20,
+    flexDirection: "row",
+    gap: 10,
+
+    justifyContent: "center",
+  },
+  icon: {
+    borderWidth: 1.5,
+    borderColor: "#ecf0f1",
+    paddingVertical: 8,
+    paddingHorizontal: 22,
+    borderRadius: 20,
+  },
 });

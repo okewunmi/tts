@@ -12,10 +12,9 @@ const into = () => {
       <View style={styles.view}>
         <View style={styles.box}>
           <View style={styles.boxTxt}>
-            <Text style={styles.txt}>Transform Text into Speech with AI</Text>
+            <Text style={styles.txt}>Unlock Prenium Voices & Advanced Features </Text>
             <Text style={styles.para}>
-              Welcome to Voxify, the Ai-powered app that brign your text to
-              life. Convert any texts to high-quality in a few taps.{" "}
+              Unlock prenium voices, faster processing, and more customization options with Voxify Prenium for enchanced experience.
             </Text>
           </View>
           <View style={styles.boxDot}>

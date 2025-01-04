@@ -62,6 +62,10 @@ const signIn = () => {
           <Text style={styles.signInTxt}> Sign In</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.policy}>
+        <Text style={styles.policyTxt}>Privacy Policy</Text>
+        <Text style={styles.policyTxt}>Terms of Service</Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -146,4 +150,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 17,
   },
+  policy: {
+    marginTop: 80,
+    flexDirection: 'row',
+    // width: "100%",
+    gap: 40
+  },
+  policyTxt: {
+    fontSize: 13,
+    color: "gray",
+  }
+
 });

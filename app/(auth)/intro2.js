@@ -13,8 +13,8 @@ const into = () => {
      
         <View style={styles.box}>
           <View style={styles.boxTxt}>
-            <Text style={styles.txt}>Transform Text into Speech with AI</Text>
-             <Text style={styles.para}>Welcome to Voxify, the Ai-powered app that brign your text to life. Convert any texts to high-quality in a few taps. </Text>
+            <Text style={styles.txt}>Scan Text from Ebooks, Documents & Web</Text>
+             <Text style={styles.para}>Scan books, convert pdf, import from cloud storage, copy-paste text or even convert web pages by entering URL</Text>
           </View>
           <View style={styles.boxDot}>
             <View style={styles.dots}></View>

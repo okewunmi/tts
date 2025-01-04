@@ -3,12 +3,14 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import image from "../../assets/images/home.png";
 import { router } from "expo-router";
+import Svg, { Path, Defs, ClipPath } from "react-native-svg";
 const into = () => {
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.img}>
+       <View style={styles.img}>
         <Image source={image} style={styles.image} />
-      </View>
+      </View> 
+      
       <View style={styles.view}>
         <View style={styles.box}>
           <View style={styles.boxTxt}>
@@ -42,7 +44,8 @@ const into = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+        </View>
+        
     </SafeAreaView>
   );
 };
@@ -55,6 +58,12 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     height: "100%",
+  },
+  svg: {
+    position: "absolute",
+    width: "100%",
+    height: "50%",
+    
   },
   view: {
     backgroundColor: "#fff",
