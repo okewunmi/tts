@@ -1,13 +1,21 @@
-import { StyleSheet, Text, View, ActivityIndicator,
-  Alert,} from 'react-native'
+import {
+  StyleSheet, Text, View, ActivityIndicator, Alert, TextInput,TouchableOpacity,
+ 
+} from 'react-native'
+  import Checkbox from "expo-checkbox";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React from 'react'
+import React, { useState } from 'react'
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { auth } from "../../lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-
+import { router , Link } from "expo-router";
 
 const signIn = () => {
-
+const [isChecked, setChecked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmting, setIssubmtting] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -125,7 +133,7 @@ const signIn = () => {
             <AntDesign name="apple1" size={22} color="black" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} onPress={handleFacebookSignIn}>
+        <TouchableOpacity style={styles.icon} >
           <View style={styles.group}>
             <FontAwesome5 name="facebook" size={22} color="#3273F6" />
           </View>

@@ -59,13 +59,14 @@ const TabLayout = () => {
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
-          tabBarActiveTintColor: "#FA9884",
+          tabBarActiveTintColor: "#3273F6",
           tabBarInactiveTintColor: "#9E9898",
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: "#423D3D",
+          backgroundColor: "#fff",
             paddingTop: 8,
-            height: 60,
+            height: 70,
+            width: '100%',
             alignSelf: "center",
             justifyContent: "center",
           },
@@ -79,7 +80,7 @@ const TabLayout = () => {
               <Foundation
                 name={"home"}
                 size={focused ? 30 : 25}
-                color={focused ? "#FA9884" : "#9E9898"}
+                color={focused ? "#3273F6" : "#9E9898"}
               />
             ),
           }}
@@ -88,13 +89,13 @@ const TabLayout = () => {
         <Tabs.Screen
           name="library"
           options={{
-            title: "folder",
-            headerShown: false,
+            title: "library",
+         
             tabBarIcon: ({ focused }) => (
               <MaterialIcons
-                name={"add-box"}
+                name={"note"}
                 size={focused ? 35 : 30}
-                color={focused ? "#FA9884" : "#9E9898"}
+                color={focused ? "#3273F6" : "#9E9898"}
               />
             ),
           }}
@@ -103,19 +104,19 @@ const TabLayout = () => {
         <Tabs.Screen
           name="profile"
           options={{
-            headerShown: false,
+           
             title: "Profile",
             tabBarIcon: ({ focused }) => (
               <Feather
                 name={"person"}
                 size={focused ? 30 : 25}
-                color={focused ? "#FA9884" : "#9E9898"}
+                color={focused ? "#3273F6" : "#9E9898"}
               />
             ),
           }}
         />
       </Tabs>
-      <StatusBar backgroundColor="#f2f2f2" style="dark" />
+      <StatusBar style="dark" />
     </>
   );
 };
