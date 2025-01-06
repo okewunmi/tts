@@ -50,15 +50,17 @@ import { Tabs } from "expo-router";
 import Feather from "@expo/vector-icons/Ionicons";
 import Foundation from "@expo/vector-icons/Foundation";
 import Fontisto from "@expo/vector-icons/Fontisto";
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
+import Entypo from '@expo/vector-icons/Entypo';
 
 const TabLayout = () => {
   return (
     <>
       <Tabs
         screenOptions={{
-          tabBarShowLabel: false,
+          tabBarShowLabel: true,
           tabBarActiveTintColor: "#3273F6",
           tabBarInactiveTintColor: "#9E9898",
           headerShown: false,
@@ -89,11 +91,11 @@ const TabLayout = () => {
         <Tabs.Screen
           name="library"
           options={{
-            title: "library",
+            title: "Library",
          
             tabBarIcon: ({ focused }) => (
-              <MaterialIcons
-                name={"note"}
+              <Entypo
+                name={"text-document"}
                 size={focused ? 35 : 30}
                 color={focused ? "#3273F6" : "#9E9898"}
               />
