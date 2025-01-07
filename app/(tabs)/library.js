@@ -89,13 +89,8 @@ const library = () => {
         horizontal
         data={DATA}
         renderItem={renderItem}
-        // renderItem={({ item }) => (
-        //   <TouchableOpacity style={styles.scrollBtn}>
-        //     <Text style={styles.scrollTxt}>{item.title}</Text>
-        //   </TouchableOpacity>
-        // )}
-        // keyExtractor={(item) => item.id}
         extraData={selectedId}
+        showsHorizontalScrollIndicator={false} // Hides the scroll thumb
       />
       <ScrollView></ScrollView>
     </SafeAreaView>

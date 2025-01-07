@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React from "react";
+import React, {useState} from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
@@ -17,11 +17,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
 import { ProgressChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 
 import Img from "../../assets/images/home.png";
 const home = () => {
-  const screenWidth = Dimensions.get("window").width;
   const data = {
     data: [0.8],
   };
@@ -36,6 +37,41 @@ const home = () => {
     barPercentage: 5,
     useShadowColorFromDataset: false, // optional
   };
+
+  const [fileInfo, setFileInfo] = useState(null);
+  
+const pickAndSaveDocument = async () => {
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: '*/*', 
+    });
+
+    if (result.type === 'cancel') {
+      console.log('User canceled');
+      return;
+    }
+
+    const { uri } = result;
+
+    // Define the local storage path
+    const localUri = FileSystem.documentDirectory + 'my_saved_document.pdf'; 
+
+    // Move the file to local storage
+    await FileSystem.moveAsync({
+      from: uri,
+      to: localUri,
+    });
+
+    // Store the local file path in AsyncStorage
+    await AsyncStorage.setItem('documentPath', localUri); 
+
+    console.log('Document saved to:', localUri);
+
+  } catch (error) {
+    console.error('Error picking document:', error);
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -71,7 +107,7 @@ const home = () => {
       </View>
       <View style={styles.grid}>
         <View style={styles.box}>
-          <TouchableOpacity style={[styles.box1, styles.red]}>
+          <TouchableOpacity style={[styles.box1, styles.red]} onPress={pickAndSaveDocument}>
             <Ionicons
               name="document-text"
               size={24}
