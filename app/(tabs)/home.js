@@ -20,6 +20,9 @@ import { ProgressChart } from "react-native-chart-kit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {auth, db,storage , } from "../../lib/firebase" ;
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 
 import Img from "../../assets/images/home.png";
 const home = () => {
@@ -39,39 +42,116 @@ const home = () => {
   };
 
   const [fileInfo, setFileInfo] = useState(null);
-  
-const pickAndSaveDocument = async () => {
+   const [documents, setDocuments] = useState([]);
+
+
+// const pickAndSaveDocument = async () => {
+//   try {
+//     const result = await DocumentPicker.getDocumentAsync({
+//       type: '*/*',
+//     });
+
+//     if (result.type === 'cancel') {
+//       console.log('User canceled');
+//       return;
+//     }
+
+//     const { uri, name } = result;
+
+//     console.log('Selected file URI:', uri);
+
+//     // Verify the file is accessible
+//     const fileInfo = await FileSystem.getInfoAsync(uri);
+//     if (!fileInfo.exists) {
+//       console.error('File does not exist:', uri);
+//       return;
+//     }
+
+//     // Define the local storage path
+//     const localUri = FileSystem.documentDirectory + name;
+
+//     // Ensure the target directory exists
+//     await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory, { intermediates: true });
+
+//     // Move the file to local storage
+//     await FileSystem.copyAsync({
+//       from: uri,
+//       to: localUri,
+//     });
+
+//     // Store the local file path in AsyncStorage
+//     await AsyncStorage.setItem('documentPath', localUri);
+
+//     console.log('Document saved to:', localUri);
+//   } catch (error) {
+//     console.error('Error picking or saving document:', error);
+//   }
+// };
+
+  // const handleDocumentUpload = async () => {
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({
+  //       type: ['application/pdf', 'application/msword'],
+  //       copyToCacheDirectory: true,
+  //     });
+
+  //     if (result.type === 'success') {
+  //       const response = await fetch(result.uri);
+  //       const blob = await response.blob();
+        
+  //       // Upload to Firebase Storage
+  //       const storageRef = ref(storage, `documents/${auth.currentUser.uid}/${result.name}`);
+  //       await uploadBytes(storageRef, blob);
+  //       const downloadURL = await getDownloadURL(storageRef);
+
+  //       // Save document reference in Firestore
+  //       await addDoc(collection(db, 'documents'), {
+  //         userId: auth.currentUser.uid,
+  //         filename: result.name,
+  //         fileUrl: downloadURL,
+  //         uploadDate: new Date().toISOString(),
+  //         processed: false
+  //       });
+
+  //       // loadUserDocuments();
+  //     }
+  //   } catch (error) {
+  //     console.error('Error uploading document:', error);
+  //   }
+  // };
+
+const handleDocumentUpload = async () => {
   try {
+    // Pick the document
     const result = await DocumentPicker.getDocumentAsync({
-      type: '*/*', 
+      type: ['application/pdf', 'application/msword'],
+      copyToCacheDirectory: true,
     });
 
-    if (result.type === 'cancel') {
-      console.log('User canceled');
-      return;
+    if (result.type === 'success') {
+      // Read the document content
+      const response = await fetch(result.uri);
+      const fileContent = await response.text(); // Read file as text
+
+      // Create document record in Firestore
+      const documentData = {
+        userId: auth.currentUser.uid,
+        filename: result.name,
+        content: fileContent, // Storing the content in Firestore
+        uploadDate: new Date().toISOString(),
+        processed: false,
+      };
+
+      const documentRef = await addDoc(collection(db, "documents"), documentData);
+
+      console.log("Document uploaded with ID:", documentRef.id);
+      Alert.alert("Success", "Document uploaded successfully!");
     }
-
-    const { uri } = result;
-
-    // Define the local storage path
-    const localUri = FileSystem.documentDirectory + 'my_saved_document.pdf'; 
-
-    // Move the file to local storage
-    await FileSystem.moveAsync({
-      from: uri,
-      to: localUri,
-    });
-
-    // Store the local file path in AsyncStorage
-    await AsyncStorage.setItem('documentPath', localUri); 
-
-    console.log('Document saved to:', localUri);
-
   } catch (error) {
-    console.error('Error picking document:', error);
+    console.error("Error uploading document:", error);
+    Alert.alert("Error", "Failed to upload the document. Please try again.");
   }
 };
-
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -107,7 +187,7 @@ const pickAndSaveDocument = async () => {
       </View>
       <View style={styles.grid}>
         <View style={styles.box}>
-          <TouchableOpacity style={[styles.box1, styles.red]} onPress={pickAndSaveDocument}>
+          <TouchableOpacity style={[styles.box1, styles.red]}  onPress={handleDocumentUpload}>
             <Ionicons
               name="document-text"
               size={24}

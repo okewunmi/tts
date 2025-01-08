@@ -69,8 +69,10 @@ const handleFacebookSignIn = () => {
       // Save additional user info to Firestore
       await setDoc(doc(db, "user", user.uid), {
         uid: user.uid,
+        createdAt: new Date().toISOString(),
         accountId: user.uid,
         email,
+        LastLogin: new Date().toISOString(),
         password,
       });
       Alert.alert("Success", "Account created successfully!");
@@ -104,7 +106,7 @@ const handleFacebookSignIn = () => {
             />
             <TextInput
               placeholder="Email"
-              keyboardType="email-address"
+              // keyboardType="email-address"
               style={styles.input}
               value={form.email}
             onChangeText={(text) => setForm({ ...form, email: text })}
