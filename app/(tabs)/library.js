@@ -60,6 +60,7 @@ const library = () => {
     );
   };
 
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.top}>
@@ -92,7 +93,9 @@ const library = () => {
         extraData={selectedId}
         showsHorizontalScrollIndicator={false} // Hides the scroll thumb
       />
-      <ScrollView></ScrollView>
+      <ScrollView>
+        
+      </ScrollView>
     </SafeAreaView>
   );
 };

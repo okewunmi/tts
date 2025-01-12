@@ -9,11 +9,11 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { auth } from "../../lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {  getCurrentUser, signIn} from "../../lib/appwrite";
 import { router , Link } from "expo-router";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
-const signIn = () => {
+const SignIn = () => {
 const [isChecked, setChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmting, setIssubmtting] = useState(false);
@@ -34,7 +34,11 @@ const [isChecked, setChecked] = useState(false);
     const { email, password } = form;
 
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
+      await signIn(form.email, form.password);
+      const result = await getCurrentUser();
+      setUser(result);
+      setIsLogged(true);
+      Alert.alert("Success", "User signed in successfully");
       // const result = await getCurrentUser();
       router.replace("/home");
       console.log("Navigation to home page successful.");
@@ -160,7 +164,7 @@ const [isChecked, setChecked] = useState(false);
   )
 }
 
-export default signIn
+export default SignIn
 
 const styles = StyleSheet.create({
   safe: {

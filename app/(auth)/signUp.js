@@ -15,14 +15,14 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { router , Link } from "expo-router";
-import {auth, db, } from "../../lib/firebase" ;
-import * as Facebook from "expo-auth-session/providers/facebook";
-import { FacebookAuthProvider, signInWithCredential,createUserWithEmailAndPassword } from "firebase/auth";
+// Import signIn and signUp functions from your API or library
+import { createUser } from "../../lib/appwrite";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
-import { setDoc, doc } from "firebase/firestore";
 
 
 const signUp = () => {
+  const { setUser, setIsLogged } = useGlobalContext();
   const [isChecked, setChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -30,25 +30,6 @@ const signUp = () => {
     password: "",
   });
 
-const [request, response, promptAsync] = Facebook.useAuthRequest({
-  clientId: "2023316988113650",
-});
-  
-  useEffect(() => {
-  if (response?.type === "success") {
-    const { access_token } = response.params;
-    const credential = FacebookAuthProvider.credential(access_token);
-    signInWithCredential(auth, credential)
-      .then((user) => Alert.alert("Success", `Logged in as ${user.email}`))
-      .catch((error) =>
-        Alert.alert("Facebook Sign-In Failed", error.message || "An error occurred.")
-      );
-  }
-}, [response]);
-
-const handleFacebookSignIn = () => {
-  promptAsync();
-};
 
   
 // Handle Sign Up
@@ -60,21 +41,13 @@ const handleFacebookSignIn = () => {
     const { email, password } = form;
     setIsSubmitting(true);
     try {
-      const result = await createUserWithEmailAndPassword(
-        auth,
+      const result = await createUser(
         form.email,
         form.password
       );
-      const user = result.user;
-      // Save additional user info to Firestore
-      await setDoc(doc(db, "user", user.uid), {
-        uid: user.uid,
-        createdAt: new Date().toISOString(),
-        accountId: user.uid,
-        email,
-        LastLogin: new Date().toISOString(),
-        password,
-      });
+      // const user = result.user;
+       setUser(result);
+      setIsLogged(true);
       Alert.alert("Success", "Account created successfully!");
       router.replace("/signIn");
       return result;
@@ -169,7 +142,7 @@ const handleFacebookSignIn = () => {
             <AntDesign name="apple1" size={22} color="black" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} onPress={handleFacebookSignIn}>
+        <TouchableOpacity style={styles.icon} >
           <View style={styles.group}>
             <FontAwesome5 name="facebook" size={22} color="#3273F6" />
           </View>

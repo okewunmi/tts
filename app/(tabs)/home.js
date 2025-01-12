@@ -5,8 +5,11 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
+  Modal,
+  ActivityIndicator
 } from "react-native";
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
@@ -17,12 +20,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
 import { ProgressChart } from "react-native-chart-kit";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import {auth, db,storage , } from "../../lib/firebase" ;
-import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
+import { createDocument, uploadFile,getCurrentUser } from "../../lib/appwrite";
 
 import Img from "../../assets/images/home.png";
 const home = () => {
@@ -42,119 +42,135 @@ const home = () => {
   };
 
   const [fileInfo, setFileInfo] = useState(null);
-   const [documents, setDocuments] = useState([]);
-
-
-// const pickAndSaveDocument = async () => {
-//   try {
-//     const result = await DocumentPicker.getDocumentAsync({
-//       type: '*/*',
-//     });
-
-//     if (result.type === 'cancel') {
-//       console.log('User canceled');
-//       return;
-//     }
-
-//     const { uri, name } = result;
-
-//     console.log('Selected file URI:', uri);
-
-//     // Verify the file is accessible
-//     const fileInfo = await FileSystem.getInfoAsync(uri);
-//     if (!fileInfo.exists) {
-//       console.error('File does not exist:', uri);
-//       return;
-//     }
-
-//     // Define the local storage path
-//     const localUri = FileSystem.documentDirectory + name;
-
-//     // Ensure the target directory exists
-//     await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory, { intermediates: true });
-
-//     // Move the file to local storage
-//     await FileSystem.copyAsync({
-//       from: uri,
-//       to: localUri,
-//     });
-
-//     // Store the local file path in AsyncStorage
-//     await AsyncStorage.setItem('documentPath', localUri);
-
-//     console.log('Document saved to:', localUri);
-//   } catch (error) {
-//     console.error('Error picking or saving document:', error);
-//   }
-// };
-
-  // const handleDocumentUpload = async () => {
+  const [documents, setDocuments] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [user, setUser] = useState(null);
+  
+  // const handleFileUpload = async () => {
   //   try {
   //     const result = await DocumentPicker.getDocumentAsync({
-  //       type: ['application/pdf', 'application/msword'],
-  //       copyToCacheDirectory: true,
+  //       type: ["application/pdf", "application/msword"], // Accept PDF and DOC
   //     });
 
-  //     if (result.type === 'success') {
-  //       const response = await fetch(result.uri);
-  //       const blob = await response.blob();
-        
-  //       // Upload to Firebase Storage
-  //       const storageRef = ref(storage, `documents/${auth.currentUser.uid}/${result.name}`);
-  //       await uploadBytes(storageRef, blob);
-  //       const downloadURL = await getDownloadURL(storageRef);
+  //     if (result.type === "success") {
+  //       // Create a File object from the document picker result
+  //       const file = {
+  //         uri: result.uri,
+  //         name: result.name,
+  //         size: result.size,
+  //         type: result.mimeType,
+  //       };
 
-  //       // Save document reference in Firestore
-  //       await addDoc(collection(db, 'documents'), {
-  //         userId: auth.currentUser.uid,
-  //         filename: result.name,
-  //         fileUrl: downloadURL,
-  //         uploadDate: new Date().toISOString(),
-  //         processed: false
-  //       });
+  //       // Extract title from filename (remove extension)
+  //       const title = result.name.replace(/\.[^/.]+$/, "");
 
-  //       // loadUserDocuments();
+  //       try {
+  //         await createDocument(
+  //           file, // File object with required properties
+  //           title, // Title extracted from filename
+  //           "English", // Language
+  //           userId // User ID
+  //         );
+
+  //         console.log("Document uploaded successfully");
+  //       } catch (error) {
+  //         console.error("Error uploading document:", error.message);
+  //       }
   //     }
   //   } catch (error) {
-  //     console.error('Error uploading document:', error);
+  //     console.error("Error picking document:", error.message);
   //   }
   // };
 
-const handleDocumentUpload = async () => {
+// const handleFileUpload = async () => {
+//   try {
+//     // Step 1: Pick a document
+//     const result = await DocumentPicker.getDocumentAsync({
+//       type: ["application/pdf", "application/msword"], // Accept PDF and DOC
+//     });
+
+//     if (result.type === "success") {
+//       const file = {
+//         uri: result.uri,
+//         name: result.name,
+//         size: result.size,
+//         mimeType: result.mimeType,
+//       };
+
+//       try {
+//         // Step 2: Upload the file to Appwrite storage
+//         const fileUrl = await uploadFile(file, "document");
+//         if (!fileUrl) throw new Error("File upload failed.");
+
+//         // Step 3: Get the current user
+//         const currentUser = await getCurrentUser();
+//         if (!currentUser) throw new Error("Unable to fetch current user.");
+
+//         const userId = currentUser.$id;
+
+//         // Step 4: Create a document record in the database
+//         const newDocument = await createDocument(file, userId, fileUrl);
+//         if (!newDocument) throw new Error("Failed to create document record.");
+
+//         console.log("Document uploaded and saved successfully.");
+//       } catch (error) {
+//         console.error("Error during file upload and record creation:", error.message);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error picking document:", error.message);
+//   }
+// };
+const handleFileUpload = async () => {
   try {
-    // Pick the document
     const result = await DocumentPicker.getDocumentAsync({
-      type: ['application/pdf', 'application/msword'],
-      copyToCacheDirectory: true,
+      type: ["application/pdf", "application/msword"],
     });
 
-    if (result.type === 'success') {
-      // Read the document content
-      const response = await fetch(result.uri);
-      const fileContent = await response.text(); // Read file as text
-
-      // Create document record in Firestore
-      const documentData = {
-        userId: auth.currentUser.uid,
-        filename: result.name,
-        content: fileContent, // Storing the content in Firestore
-        uploadDate: new Date().toISOString(),
-        processed: false,
-      };
-
-      const documentRef = await addDoc(collection(db, "documents"), documentData);
-
-      console.log("Document uploaded with ID:", documentRef.id);
-      Alert.alert("Success", "Document uploaded successfully!");
+    if (!result.canceled) {
+      const file = result.assets[0];
+      
+      try {
+        // Upload file to storage and get URL
+        const fileUrl = await uploadFile(file, "document");
+        setUploading(true)
+        if (fileUrl) {
+          // Create document record
+          await createDocument(file, user.$id, fileUrl);
+          Alert.alert("Success", "Document uploaded successfully");
+            router.replace("/library");
+        }
+      } catch (error) {
+        Alert.alert("Error", error.message || "Error uploading document");
+      }
     }
   } catch (error) {
-    console.error("Error uploading document:", error);
-    Alert.alert("Error", "Failed to upload the document. Please try again.");
+    Alert.alert("Error", error.message || "Error picking document");
   }
-};
+  };
+  
+useEffect(() => {
+  const getUser = async () => {
+    const currentUser = await getCurrentUser();
+    setUser(currentUser);
+  };
+  getUser();
+}, []);
 
   return (
     <SafeAreaView style={styles.safe}>
+    {/* Loading Modal */}
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isLoading}
+        onRequestClose={() => setIsLoading(false)}
+      >
+        <View style={styles.modalContainer}>
+          <ActivityIndicator size="large" color="#3273F6" />
+        </View>
+      </Modal>
+
       <View style={styles.top}>
         <View style={styles.Logo}>
           <MaterialCommunityIcons
@@ -187,7 +203,10 @@ const handleDocumentUpload = async () => {
       </View>
       <View style={styles.grid}>
         <View style={styles.box}>
-          <TouchableOpacity style={[styles.box1, styles.red]}  onPress={handleDocumentUpload}>
+          <TouchableOpacity
+            style={[styles.box1, styles.red]}
+            onPress={handleFileUpload}
+          >
             <Ionicons
               name="document-text"
               size={24}
@@ -237,7 +256,7 @@ const handleDocumentUpload = async () => {
             </View>
           </Link>
         </View>
-        <View style={styles.recentDoc}>
+        {/* <View style={styles.recentDoc}>
           <View style={styles.Doc}>
             <Image source={Img} style={styles.docImg} />
             <View style={styles.docTxt}>
@@ -316,7 +335,7 @@ const handleDocumentUpload = async () => {
               />
             </TouchableOpacity>
           </View>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );
@@ -325,6 +344,12 @@ const handleDocumentUpload = async () => {
 export default home;
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent background
+  },
   safe: {
     flex: 1,
     justifyContent: "flex-start",
@@ -508,7 +533,7 @@ const styles = StyleSheet.create({
   docTxtHead: {
     fontSize: 14,
     fontWeight: "bold",
-    paddingRight: 10
+    paddingRight: 10,
   },
   docTxtdate: {
     flexDirection: "row",

@@ -46,7 +46,7 @@
 
 
 import React from "react";
-import { Tabs } from "expo-router";
+import {  Redirect,Tabs } from "expo-router";
 import Feather from "@expo/vector-icons/Ionicons";
 import Foundation from "@expo/vector-icons/Foundation";
 import Fontisto from "@expo/vector-icons/Fontisto";
@@ -54,8 +54,11 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
 import Entypo from '@expo/vector-icons/Entypo';
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const TabLayout = () => {
+  const { loading, isLogged } = useGlobalContext();
+  if (!loading && !isLogged) return <Redirect href="/signIn" />;
   return (
     <>
       <Tabs

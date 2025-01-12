@@ -45,10 +45,9 @@
 import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
-// import GlobalProvider from "../ContextFile/GlobalProvider";
 import { StatusBar } from "expo-status-bar";
-// import GlobalProvider from "../ContextFile/GlobalProvider";
 
+import GlobalProvider from "../context/GlobalProvider";
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
@@ -66,7 +65,7 @@ const RootLayout = () => {
 
   return (
     <>
-      {/* <GlobalProvider> */}
+      <GlobalProvider>
       <Stack
         screenOptions={{
           title: "",
@@ -82,7 +81,7 @@ const RootLayout = () => {
         {/* <Stack.Screen name="details/[folderId]" /> */}
       </Stack>
       <StatusBar style="light" />
-      {/* </GlobalProvider >  */}
+      </GlobalProvider > 
     </>
 
   );

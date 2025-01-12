@@ -1,8 +1,13 @@
 import React from "react";
-import { Stack } from "expo-router";
+import { Redirect,Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Layout = () => {
+  const { loading, isLogged } = useGlobalContext();
+
+  if (!loading && isLogged) return <Redirect href="/home" />;
+
   return (
     <>
       <Stack screenOptions={{
