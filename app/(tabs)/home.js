@@ -28,7 +28,7 @@ const home = () => {
   const handleFileUpload = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf", "application/msword"],
+        type: ["application/pdf", "application/msword", "text/plain"]
       });
 
       if (!result.canceled) {

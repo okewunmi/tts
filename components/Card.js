@@ -23,7 +23,7 @@ const Card = ({ item }) => {
     <TouchableOpacity
       style={styles.Doc}
       onPress={() => {
-        router.push("/read");
+        router.push(`/Read/${item.$id}`);
       }}
     >
       <View style={styles.docImgBox}>

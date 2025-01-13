@@ -99,6 +99,7 @@ useEffect(() => {
 
   return (
     <SafeAreaView style={styles.safe}>
+      
       <View style={styles.top}>
         <View style={styles.Logo}>
           <MaterialCommunityIcons
@@ -129,7 +130,7 @@ useEffect(() => {
         extraData={selectedId}
         showsHorizontalScrollIndicator={false} // Hides the scroll thumb
       />
-      <ScrollView>
+     
         <View style={styles.recentDoc}>
           <FlatList
           data={documents}
@@ -142,8 +143,6 @@ useEffect(() => {
         />
         </View>
         
-       
-      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -159,6 +158,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingVertical: 25,
     paddingHorizontal: 15,
+  }, scroll: {
+    height: "100%",
   },
   top: {
     flexDirection: "row",
