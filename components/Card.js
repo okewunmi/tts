@@ -2,10 +2,11 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
-import {router} from 'expo-router'
+import {  useRouter} from "expo-router";
 import Img from "../assets/images/home.png";
 const Card = ({ item }) => {
-    const {title,createdAt}=item
+  const { title, createdAt, $id } = item
+  const router = useRouter();
 
 // Format the date
   const formatDate = (dateString) => {
@@ -18,12 +19,15 @@ const Card = ({ item }) => {
   };
   
 
-
   return (
     <TouchableOpacity
       style={styles.Doc}
       onPress={() => {
-        router.push(`/Read/${item.$id}`);
+        if ($id) {
+          router.push(`/file/${$id}`);
+        } else {
+          console.warn('Document ID is missing');
+        }
       }}
     >
       <View style={styles.docImgBox}>
@@ -33,9 +37,10 @@ const Card = ({ item }) => {
         <View style={styles.docTxtdate}>
           <Text style={styles.docTxtSmall}>{formatDate(createdAt ||"Dec 20, 2024")}</Text>
           <Text style={styles.docTxtSmall}>Document</Text>
+            {/* <Text style={styles.docTxtSmall}>{ $id}</Text> */}
+        </View>
         </View>
       </View>
-</View>
       <TouchableOpacity>
         <SimpleLineIcons name="options-vertical" size={18} color="black" />
       </TouchableOpacity>

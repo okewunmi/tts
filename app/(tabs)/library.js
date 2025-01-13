@@ -13,7 +13,9 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import Feather from "@expo/vector-icons/Feather";
 import { getDocuments, getCurrentUser } from "../../lib/appwrite";
-import { router } from "expo-router";
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { getDocumentById } from '../../lib/appwrite';
+
 
 import Card from "../../components/Card";
 const DATA = [
@@ -48,6 +50,8 @@ const Item = ({ item, onPress, backgroundColor, textColor }) => (
   </TouchableOpacity>
 );
 const library = () => {
+  
+
   const [selectedId, setSelectedId] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
@@ -140,6 +144,7 @@ useEffect(() => {
           onRefresh={handleRefresh}
           style={styles.flatList}
           contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
         />
         </View>
         
@@ -158,9 +163,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingVertical: 25,
     paddingHorizontal: 15,
-  }, scroll: {
-    height: "100%",
-  },
+  }, 
   top: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -205,9 +208,10 @@ const styles = StyleSheet.create({
   btnTxt2: {
     color: "#000",
   },
-  scroll: {
-    maxHeight: 50,
-  },
+  // scroll: {
+  //   height: 50,
+  //   marginBottom:50
+  // },
   scrollBtn: {
     paddingVertical: 8,
     paddingHorizontal: 23,
@@ -227,7 +231,6 @@ const styles = StyleSheet.create({
   },
    recentDoc: {
     width: "100%",
-    alignItems: "center",
-    // paddingHorizontal: 5,
+    alignItems: "center", 
   },
 });

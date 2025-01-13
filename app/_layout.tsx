@@ -76,7 +76,7 @@ const RootLayout = () => {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="Read/[read]"  />
+        <Stack.Screen name="file/[fileId]"  />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         {/* <Stack.Screen name="details/[folderId]" /> */}
