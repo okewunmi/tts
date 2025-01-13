@@ -14,12 +14,10 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { router , Link } from "expo-router";
+import { router, Link } from "expo-router";
 // Import signIn and signUp functions from your API or library
 import { createUser } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
-
-
 
 const signUp = () => {
   const { setUser, setIsLogged } = useGlobalContext();
@@ -30,23 +28,18 @@ const signUp = () => {
     password: "",
   });
 
-
-  
-// Handle Sign Up
+  // Handle Sign Up
   const handleSignUp = async () => {
-    if ( !form.email || !form.password) {
+    if (!form.email || !form.password) {
       Alert.alert("Error", " All fields are required.");
       return;
     }
     const { email, password } = form;
     setIsSubmitting(true);
     try {
-      const result = await createUser(
-        form.email,
-        form.password
-      );
+      const result = await createUser(form.email, form.password);
       // const user = result.user;
-       setUser(result);
+      setUser(result);
       setIsLogged(true);
       Alert.alert("Success", "Account created successfully!");
       router.replace("/signIn");
@@ -57,7 +50,6 @@ const signUp = () => {
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -82,7 +74,7 @@ const signUp = () => {
               // keyboardType="email-address"
               style={styles.input}
               value={form.email}
-            onChangeText={(text) => setForm({ ...form, email: text })}
+              onChangeText={(text) => setForm({ ...form, email: text })}
             />
           </View>
         </View>
@@ -99,13 +91,16 @@ const signUp = () => {
               secureTextEntry
               style={styles.input}
               value={form.password}
-            onChangeText={(text) => setForm({ ...form, password: text })}
+              onChangeText={(text) => setForm({ ...form, password: text })}
             />
             <TouchableOpacity>
-              <MaterialCommunityIcons name="eye-off-outline" size={22} color="black" />
+              <MaterialCommunityIcons
+                name="eye-off-outline"
+                size={22}
+                color="black"
+              />
             </TouchableOpacity>
           </View>
-         
         </View>
         <View style={styles.boxprivacy}>
           <Checkbox
@@ -142,12 +137,12 @@ const signUp = () => {
             <AntDesign name="apple1" size={22} color="black" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} >
+        <TouchableOpacity style={styles.icon}>
           <View style={styles.group}>
             <FontAwesome5 name="facebook" size={22} color="#3273F6" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} >
+        <TouchableOpacity style={styles.icon}>
           <View style={styles.group}>
             <FontAwesome6 name="x-twitter" size={22} color="black" />
           </View>
@@ -157,10 +152,14 @@ const signUp = () => {
         <TouchableOpacity
           style={styles.signbtn}
           onPress={handleSignUp}
-            disabled={isSubmitting}
+          disabled={isSubmitting}
         >
           <Text style={styles.signTxt}>
-            {isSubmitting ? (<ActivityIndicator size="small" color="#fff" />) : "Sign up"}
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              "Sign up"
+            )}
           </Text>
         </TouchableOpacity>
       </View>
@@ -234,7 +233,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    width: "80%"
+    width: "80%",
   },
   boxprivacy: {
     flexDirection: "row",

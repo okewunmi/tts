@@ -5,13 +5,17 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Image,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import Feather from "@expo/vector-icons/Feather";
+import { getDocuments, getCurrentUser } from "../../lib/appwrite";
+import { router } from "expo-router";
 
+import Card from "../../components/Card";
 const DATA = [
   {
     id: "1",
@@ -45,6 +49,10 @@ const Item = ({ item, onPress, backgroundColor, textColor }) => (
 );
 const library = () => {
   const [selectedId, setSelectedId] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [user, setUser] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const renderItem = ({ item }) => {
     const backgroundColor = item.id === selectedId ? "#3273F6" : "#fff";
@@ -60,6 +68,34 @@ const library = () => {
     );
   };
 
+useEffect(() => {
+    const getUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchDocuments();
+    }
+  }, [user]);
+
+  const fetchDocuments = async () => {
+    try {
+      const userDocuments = await getDocuments(user.$id);
+      setDocuments(userDocuments);
+    } catch (error) {
+      Alert.alert("Error", "Failed to fetch documents");
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchDocuments();
+    setRefreshing(false);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -94,7 +130,19 @@ const library = () => {
         showsHorizontalScrollIndicator={false} // Hides the scroll thumb
       />
       <ScrollView>
+        <View style={styles.recentDoc}>
+          <FlatList
+          data={documents}
+          renderItem={({ item }) => <Card item={item} />}
+          keyExtractor={item => item.$id}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          style={styles.flatList}
+          contentContainerStyle={styles.flatListContent}
+        />
+        </View>
         
+       
       </ScrollView>
     </SafeAreaView>
   );
@@ -175,6 +223,10 @@ const styles = StyleSheet.create({
     color: "#000",
     height: "100%",
     fontWeight: "bold",
-    height: "100%",
+  },
+   recentDoc: {
+    width: "100%",
+    alignItems: "center",
+    // paddingHorizontal: 5,
   },
 });

@@ -1,20 +1,25 @@
 import {
-  StyleSheet, Text, View, ActivityIndicator, Alert, TextInput,TouchableOpacity,
- 
-} from 'react-native'
-  import Checkbox from "expo-checkbox";
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import Checkbox from "expo-checkbox";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import {  getCurrentUser, signIn} from "../../lib/appwrite";
-import { router , Link } from "expo-router";
+import { getCurrentUser, signIn } from "../../lib/appwrite";
+import { router, Link } from "expo-router";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const SignIn = () => {
-const [isChecked, setChecked] = useState(false);
+  const [isChecked, setChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmting, setIssubmtting] = useState(false);
   const [form, setForm] = useState({
@@ -22,7 +27,7 @@ const [isChecked, setChecked] = useState(false);
     password: "",
   });
 
- const submit = async () => {
+  const submit = async () => {
     if (!form.email || !form.password) {
       Alert.alert("Error", "Please fill in both email and password fields.");
       console.log("form checked.");
@@ -53,9 +58,8 @@ const [isChecked, setChecked] = useState(false);
     }
   };
 
-  
   return (
-      <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe}>
       <View style={styles.view}>
         <Text style={styles.heading}>Welcom Back! </Text>
         <Text style={styles.txt}>
@@ -77,7 +81,7 @@ const [isChecked, setChecked] = useState(false);
               keyboardType="email-address"
               style={styles.input}
               value={form.email}
-            onChangeText={(text) => setForm({ ...form, email: text })}
+              onChangeText={(text) => setForm({ ...form, email: text })}
             />
           </View>
         </View>
@@ -94,13 +98,16 @@ const [isChecked, setChecked] = useState(false);
               secureTextEntry
               style={styles.input}
               value={form.password}
-            onChangeText={(text) => setForm({ ...form, password: text })}
+              onChangeText={(text) => setForm({ ...form, password: text })}
             />
             <TouchableOpacity>
-              <MaterialCommunityIcons name="eye-off-outline" size={22} color="black" />
+              <MaterialCommunityIcons
+                name="eye-off-outline"
+                size={22}
+                color="black"
+              />
             </TouchableOpacity>
           </View>
-         
         </View>
         <View style={styles.boxprivacy}>
           <Checkbox
@@ -137,12 +144,12 @@ const [isChecked, setChecked] = useState(false);
             <AntDesign name="apple1" size={22} color="black" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} >
+        <TouchableOpacity style={styles.icon}>
           <View style={styles.group}>
             <FontAwesome5 name="facebook" size={22} color="#3273F6" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} >
+        <TouchableOpacity style={styles.icon}>
           <View style={styles.group}>
             <FontAwesome6 name="x-twitter" size={22} color="black" />
           </View>
@@ -152,19 +159,22 @@ const [isChecked, setChecked] = useState(false);
         <TouchableOpacity
           style={styles.signbtn}
           onPress={submit}
-            disabled={isSubmitting}
+          disabled={isSubmitting}
         >
           <Text style={styles.signTxt}>
-            {isSubmitting ? (<ActivityIndicator size="small" color="#fff" />) : "Sign in"}
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              "Sign in"
+            )}
           </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-    
-  )
-}
+  );
+};
 
-export default SignIn
+export default SignIn;
 
 const styles = StyleSheet.create({
   safe: {
@@ -230,7 +240,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    width: "80%"
+    width: "80%",
   },
   boxprivacy: {
     flexDirection: "row",

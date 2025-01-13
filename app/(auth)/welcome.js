@@ -152,13 +152,12 @@ const styles = StyleSheet.create({
   },
   policy: {
     marginTop: 80,
-    flexDirection: 'row',
+    flexDirection: "row",
     // width: "100%",
-    gap: 40
+    gap: 40,
   },
   policyTxt: {
     fontSize: 13,
     color: "gray",
-  }
-
+  },
 });

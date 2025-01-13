@@ -2,12 +2,10 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
   TouchableOpacity,
-  Image,
   Alert,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,152 +17,58 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
-import { ProgressChart } from "react-native-chart-kit";
+
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
-import { createDocument, uploadFile,getCurrentUser } from "../../lib/appwrite";
+import { createDocument, uploadFile, getCurrentUser } from "../../lib/appwrite";
 
-import Img from "../../assets/images/home.png";
 const home = () => {
-  const data = {
-    data: [0.8],
-  };
-
-  const chartConfig = {
-    backgroundGradientFrom: "#ffff",
-    backgroundGradientFromOpacity: 0,
-    backgroundGradientTo: "#ffff",
-    backgroundGradientToOpacity: 0.5,
-    color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-    strokeWidth: 2, // optional, default 3
-    barPercentage: 5,
-    useShadowColorFromDataset: false, // optional
-  };
-
-  const [fileInfo, setFileInfo] = useState(null);
-  const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
-  
-  // const handleFileUpload = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({
-  //       type: ["application/pdf", "application/msword"], // Accept PDF and DOC
-  //     });
 
-  //     if (result.type === "success") {
-  //       // Create a File object from the document picker result
-  //       const file = {
-  //         uri: result.uri,
-  //         name: result.name,
-  //         size: result.size,
-  //         type: result.mimeType,
-  //       };
+  const handleFileUpload = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["application/pdf", "application/msword"],
+      });
 
-  //       // Extract title from filename (remove extension)
-  //       const title = result.name.replace(/\.[^/.]+$/, "");
+      if (!result.canceled) {
+        const file = result.assets[0];
 
-  //       try {
-  //         await createDocument(
-  //           file, // File object with required properties
-  //           title, // Title extracted from filename
-  //           "English", // Language
-  //           userId // User ID
-  //         );
-
-  //         console.log("Document uploaded successfully");
-  //       } catch (error) {
-  //         console.error("Error uploading document:", error.message);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error picking document:", error.message);
-  //   }
-  // };
-
-// const handleFileUpload = async () => {
-//   try {
-//     // Step 1: Pick a document
-//     const result = await DocumentPicker.getDocumentAsync({
-//       type: ["application/pdf", "application/msword"], // Accept PDF and DOC
-//     });
-
-//     if (result.type === "success") {
-//       const file = {
-//         uri: result.uri,
-//         name: result.name,
-//         size: result.size,
-//         mimeType: result.mimeType,
-//       };
-
-//       try {
-//         // Step 2: Upload the file to Appwrite storage
-//         const fileUrl = await uploadFile(file, "document");
-//         if (!fileUrl) throw new Error("File upload failed.");
-
-//         // Step 3: Get the current user
-//         const currentUser = await getCurrentUser();
-//         if (!currentUser) throw new Error("Unable to fetch current user.");
-
-//         const userId = currentUser.$id;
-
-//         // Step 4: Create a document record in the database
-//         const newDocument = await createDocument(file, userId, fileUrl);
-//         if (!newDocument) throw new Error("Failed to create document record.");
-
-//         console.log("Document uploaded and saved successfully.");
-//       } catch (error) {
-//         console.error("Error during file upload and record creation:", error.message);
-//       }
-//     }
-//   } catch (error) {
-//     console.error("Error picking document:", error.message);
-//   }
-// };
-const handleFileUpload = async () => {
-  try {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ["application/pdf", "application/msword"],
-    });
-
-    if (!result.canceled) {
-      const file = result.assets[0];
-      
-      try {
-        // Upload file to storage and get URL
-        const fileUrl = await uploadFile(file, "document");
-        setUploading(true)
-        if (fileUrl) {
-          // Create document record
-          await createDocument(file, user.$id, fileUrl);
-          Alert.alert("Success", "Document uploaded successfully");
+        try {
+          // Upload file to storage and get URL
+          const fileUrl = await uploadFile(file, "document");
+          setUploading(true);
+          if (fileUrl) {
+            // Create document record
+            await createDocument(file, user.$id, fileUrl);
+            Alert.alert("Success", "Document uploaded successfully");
             router.replace("/library");
+          }
+        } catch (error) {
+          Alert.alert("Error", error.message || "Error uploading document");
         }
-      } catch (error) {
-        Alert.alert("Error", error.message || "Error uploading document");
       }
+    } catch (error) {
+      Alert.alert("Error", error.message || "Error picking document");
     }
-  } catch (error) {
-    Alert.alert("Error", error.message || "Error picking document");
-  }
   };
-  
-useEffect(() => {
-  const getUser = async () => {
-    const currentUser = await getCurrentUser();
-    setUser(currentUser);
-  };
-  getUser();
-}, []);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    };
+    getUser();
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe}>
-    {/* Loading Modal */}
+      {/* Loading Modal */}
       <Modal
         transparent={true}
         animationType="fade"
-        visible={isLoading}
-        onRequestClose={() => setIsLoading(false)}
+        visible={uploading}
+        onRequestClose={() => setUploading(false)}
       >
         <View style={styles.modalContainer}>
           <ActivityIndicator size="large" color="#3273F6" />
@@ -256,86 +160,7 @@ useEffect(() => {
             </View>
           </Link>
         </View>
-        {/* <View style={styles.recentDoc}>
-          <View style={styles.Doc}>
-            <Image source={Img} style={styles.docImg} />
-            <View style={styles.docTxt}>
-              <Text style={styles.docTxtHead}>The Economic Innovation</Text>
-              <View style={styles.docTxtdate}>
-                <Text style={styles.docTxtSmall}>Dec 20, 2024</Text>
-                <Text style={styles.docTxtSmall}>Document</Text>
-              </View>
-            </View>
-            <ProgressChart
-              data={data}
-              width={70}
-              height={70}
-              strokeWidth={3}
-              radius={17}
-              chartConfig={chartConfig}
-              hideLegend={true}
-            />
-            <TouchableOpacity>
-              <SimpleLineIcons
-                name="options-vertical"
-                size={18}
-                color="black"
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.Doc}>
-            <Image source={Img} style={styles.docImg} />
-            <View style={styles.docTxt}>
-              <Text style={styles.docTxtHead}>The Economic Innovation</Text>
-              <View style={styles.docTxtdate}>
-                <Text style={styles.docTxtSmall}>Dec 20, 2024</Text>
-                <Text style={styles.docTxtSmall}>Document</Text>
-              </View>
-            </View>
-            <ProgressChart
-              data={data}
-              width={70}
-              height={70}
-              strokeWidth={3}
-              radius={17}
-              chartConfig={chartConfig}
-              hideLegend={true}
-            />
-            <TouchableOpacity>
-              <SimpleLineIcons
-                name="options-vertical"
-                size={18}
-                color="black"
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.Doc}>
-            <Image source={Img} style={styles.docImg} />
-            <View style={styles.docTxt}>
-              <Text style={styles.docTxtHead}>The Economic Innovation</Text>
-              <View style={styles.docTxtdate}>
-                <Text style={styles.docTxtSmall}>Dec 20, 2024</Text>
-                <Text style={styles.docTxtSmall}>Document</Text>
-              </View>
-            </View>
-            <ProgressChart
-              data={data}
-              width={70}
-              height={70}
-              strokeWidth={3}
-              radius={17}
-              chartConfig={chartConfig}
-              hideLegend={true}
-            />
-            <TouchableOpacity>
-              <SimpleLineIcons
-                name="options-vertical"
-                size={18}
-                color="black"
-              />
-            </TouchableOpacity>
-          </View>
-        </View> */}
+        <View style={styles.recentDoc}></View>
       </View>
     </SafeAreaView>
   );
@@ -346,9 +171,9 @@ export default home;
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent background
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
   },
   safe: {
     flex: 1,
