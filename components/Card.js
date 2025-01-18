@@ -33,7 +33,7 @@ const Card = ({ item }) => {
       <View style={styles.docImgBox}>
       <Image source={Img} style={styles.docImg} />
       <View style={styles.docTxt}>
-        <Text style={styles.docTxtHead}>{title.length > 20 ? title.slice(0, 23).concat(' ...'): title }</Text>
+        <Text style={styles.docTxtHead}>{title.length > 20 ? title.slice(0, 27).concat(' ...'): title }</Text>
         <View style={styles.docTxtdate}>
           <Text style={styles.docTxtSmall}>{formatDate(createdAt ||"Dec 20, 2024")}</Text>
           <Text style={styles.docTxtSmall}>Document</Text>
