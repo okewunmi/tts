@@ -1,18 +1,24 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image,  ActivityIndicator, ScrollView } from "react-native";
-import React, { useEffect, useState}  from "react";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getDocumentById } from '../../lib/appwrite';
+import { useLocalSearchParams } from "expo-router";
+import { getDocumentById, getFilePreview } from "../../lib/appwrite";
 
-const into = () => {
+
+const FileView = () => {
   const { fileId } = useLocalSearchParams();
-  const router = useRouter();
   const [document, setDocument] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
+  useEffect(() => {
     fetchDocument();
   }, [fileId]);
 
@@ -20,8 +26,15 @@ useEffect(() => {
     try {
       const doc = await getDocumentById(fileId);
       setDocument(doc);
+      
+      // Extract file ID from the fileUrl
+      const storedFileId = doc.fileUrl.split('/').pop();
+      // Get preview URL
+      const previewUrl = await getFilePreview(storedFileId);
+      setPdfUrl(previewUrl);
     } catch (error) {
-      Alert.alert('Error', 'Failed to load document');
+      console.error('Error loading document:', error);
+      Alert.alert("Error", "Failed to load document");
     } finally {
       setLoading(false);
     }
@@ -34,46 +47,63 @@ useEffect(() => {
       </View>
     );
   }
-  
+
+  if (!document || !pdfUrl) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>No document found</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.scroll}>
         <View style={styles.boxTxt}>
-          <Text style={styles.txt}> Transform Text into Speech with AI</Text>
-          <Text style={styles.headerTitle}>Document Details {document?.title}</Text>
+          <Text style={styles.headerTitle}>
+            {document?.title}
+          </Text>
+        </View>
+        <View style={styles.container}>
           
         </View>
       </ScrollView>
-          
-        <View style={styles.bottom}></View>
     </SafeAreaView>
   );
 };
 
-export default into;
+export default FileView;
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#fff',
-    height: "100%",
+    backgroundColor: "#fff",
   },
   scroll: {
     flex: 1,
-    backgroundColor: '#eeee',
+    backgroundColor: "#eeee",
     paddingHorizontal: 20,
-    marginTop: -25
-
   },
-  boxTxt:{
-    width: '100%',
-
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  bottom: {
-    backgroundColor: '#fff',
+  container: {
+    flex: 1,
+    height: Dimensions.get('window').height - 100,
+  },
+  pdf: {
+    flex: 1,
     width: '100%',
-    height: '90',
-    borderTopWidth: 1,
-    borderColor: "#f2f3f4",
+    height: '100%',
+  },
+  boxTxt: {
+    width: "100%",
+    padding: 10,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
   }
 });

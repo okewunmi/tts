@@ -15,8 +15,6 @@ import Feather from "@expo/vector-icons/Feather";
 import { getDocuments, getCurrentUser } from "../../lib/appwrite";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getDocumentById } from '../../lib/appwrite';
-
-
 import Card from "../../components/Card";
 const DATA = [
   {
@@ -233,4 +231,10 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center", 
   },
+  flatList: {
+    
+  },
+  flatListContent: {
+  paddingBottom: 20,
+},
 });

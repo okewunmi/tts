@@ -19,6 +19,9 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
 
 import * as DocumentPicker from "expo-document-picker";
+import * Filesystem from 'expo-file-system';
+import pdfParse form 'pdf-parse';
+import mammoth from 'mammoth';
 import { createDocument, uploadFile, getCurrentUser } from "../../lib/appwrite";
 
 const home = () => {
@@ -28,8 +31,8 @@ const home = () => {
   const handleFileUpload = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf", "application/msword", "text/plain"]
-      });
+      type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    });
 
       if (!result.canceled) {
         const file = result.assets[0];
