@@ -19,9 +19,9 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
 
 import * as DocumentPicker from "expo-document-picker";
-import * Filesystem from 'expo-file-system';
-import pdfParse form 'pdf-parse';
-import mammoth from 'mammoth';
+import * as FileSystem from 'expo-file-system';
+
+
 import { createDocument, uploadFile, getCurrentUser } from "../../lib/appwrite";
 
 const home = () => {
@@ -56,13 +56,23 @@ const home = () => {
     }
   };
 
+
   useEffect(() => {
-    const getUser = async () => {
-      const currentUser = await getCurrentUser();
+  const getUser = async () => {
+    try {
+      const currentUser = await getCurrentUser(); // Verify this function's behavior
+      // console.log("Current User:", currentUser); // Log for debugging
       setUser(currentUser);
-    };
-    getUser();
-  }, []);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    } finally {
+      setUploading(false)
+    }
+  };
+  getUser();
+}, []);
+
+
 
   return (
     <SafeAreaView style={styles.safe}>

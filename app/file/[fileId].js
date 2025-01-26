@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { getDocumentById, getFilePreview } from "../../lib/appwrite";
+// import TTSFuction from '..components/tts'
 
 
 const FileView = () => {
@@ -63,16 +64,19 @@ const FileView = () => {
           <Text style={styles.headerTitle}>
             {document?.title}
           </Text>
-        </View>
-        <View style={styles.container}>
-          
+          <Text style={styles.headerTitle}>
+            {document?.extractedText}
+          </Text>
+          <Text style={styles.headerTitle}>
+            {document?.fileSize}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default FileView;
+
 
 const styles = StyleSheet.create({
   safe: {
@@ -84,26 +88,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#eeee",
     paddingHorizontal: 20,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    flex: 1,
-    height: Dimensions.get('window').height - 100,
-  },
-  pdf: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  boxTxt: {
-    width: "100%",
-    padding: 10,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  }
+  
 });
+
+export default FileView;
