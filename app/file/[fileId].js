@@ -29,10 +29,10 @@ const FileView = () => {
       setDocument(doc);
       
       // Extract file ID from the fileUrl
-      const storedFileId = doc.fileUrl.split('/').pop();
-      // Get preview URL
-      const previewUrl = await getFilePreview(storedFileId);
-      setPdfUrl(previewUrl);
+      // const storedFileId = doc.fileUrl.split('/').pop();
+      // // Get preview URL
+      // const previewUrl = await getFilePreview(storedFileId);
+      // setPdfUrl(previewUrl);
     } catch (error) {
       console.error('Error loading document:', error);
       Alert.alert("Error", "Failed to load document");
@@ -49,7 +49,7 @@ const FileView = () => {
     );
   }
 
-  if (!document || !pdfUrl) {
+  if (!document) {
     return (
       <View style={styles.loadingContainer}>
         <Text>No document found</Text>
@@ -67,9 +67,7 @@ const FileView = () => {
           <Text style={styles.headerTitle}>
             {document?.extractedText}
           </Text>
-          <Text style={styles.headerTitle}>
-            {document?.fileSize}
-          </Text>
+          
         </View>
       </ScrollView>
     </SafeAreaView>

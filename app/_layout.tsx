@@ -38,10 +38,6 @@
 //   );
 // }
 
-
-
-
-
 import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
@@ -66,25 +62,25 @@ const RootLayout = () => {
   return (
     <>
       <GlobalProvider>
-      <Stack
-        screenOptions={{
-          title: "",
-          headerStyle: {
-            backgroundColor: "#fff",
-          },
-          headerTintColor: "#000",
-        }}
-      >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="file/[fileId]"  />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="details/[folderId]" /> */}
-      </Stack>
-      <StatusBar style="light" />
-      </GlobalProvider > 
+        <Stack
+          screenOptions={{
+            title: "",
+            headerStyle: {
+              backgroundColor: "#fff",
+            },
+            headerTintColor: "#000",
+          }}
+        >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="file/[fileId]" />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="type/typing" options={{ headerTitle:'Write or Paste Text' }}/>
+          {/* <Stack.Screen name="details/[folderId]" /> */}
+        </Stack>
+        <StatusBar style="light" />
+      </GlobalProvider>
     </>
-
   );
 };
 

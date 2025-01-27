@@ -29,33 +29,33 @@ const home = () => {
   const [user, setUser] = useState(null);
 
   const handleFileUpload = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
       type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
     });
 
-      if (!result.canceled) {
-        const file = result.assets[0];
+    if (!result.canceled) {
+      const file = result.assets[0];
 
-        try {
-          // Upload file to storage and get URL
-          const fileUrl = await uploadFile(file, "document");
-          setUploading(true);
-          if (fileUrl) {
-            // Create document record
-            await createDocument(file, user.$id, fileUrl);
-            Alert.alert("Success", "Document uploaded successfully");
-            router.replace("/library");
-          }
-        } catch (error) {
-          Alert.alert("Error", error.message || "Error uploading document");
+      try {
+        // Upload file to storage and get URL
+        const { fileUrl, extractedText } = await uploadFile(file, "document");
+        setUploading(true);
+        
+        if (fileUrl) {
+          // Create document record
+          await createDocument({...file, extractedText}, user.$id, fileUrl);
+          Alert.alert("Success", "Document uploaded successfully");
+          router.replace("/library");
         }
+      } catch (error) {
+        Alert.alert("Error", error.message || "Error uploading document");
       }
-    } catch (error) {
-      Alert.alert("Error", error.message || "Error picking document");
     }
-  };
-
+  } catch (error) {
+    Alert.alert("Error", error.message || "Error picking document");
+  }
+};
 
   useEffect(() => {
   const getUser = async () => {
@@ -143,7 +143,11 @@ const home = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.box}>
-          <TouchableOpacity style={[styles.box1, styles.green]}>
+          <TouchableOpacity style={[styles.box1, styles.green]}
+            onPress={() => {
+            router.push("type/typing");
+          }}>
+            
             <Entypo
               name="text-document"
               size={25}
@@ -151,6 +155,7 @@ const home = () => {
               style={styles.icon3}
             />
             <Text style={styles.iconTxt}>Write or Paste Text</Text>
+        
           </TouchableOpacity>
           <TouchableOpacity style={[styles.box1, styles.blue]}>
             <MaterialCommunityIcons
