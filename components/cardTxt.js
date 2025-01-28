@@ -1,10 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React from "react";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import Feather from '@expo/vector-icons/Feather';
 import {  useRouter} from "expo-router";
 import Img from "../assets/images/home.png";
 const Card = ({ item }) => {
-  const { title, createdAt, $id, docType } = item
+  const { text, createdAt, $id, docType } = item
   const router = useRouter();
 
 // Format the date
@@ -17,11 +18,10 @@ const Card = ({ item }) => {
     });
   };
   
-  const formatTitle = (title) => {
-    if (!title) return 'Untitled';
-    return title.length > 20 ? `${title.slice(0, 27)}...` : title;
+const formatTitle = (text) => {
+    if (!text) return 'Untitled';
+    return text.length > 20 ? `${text.slice(0, 27)}...` : text;
   };
-
   return (
     <TouchableOpacity
       style={styles.Doc}
@@ -34,9 +34,10 @@ const Card = ({ item }) => {
       }}
     >
       <View style={styles.docImgBox}>
-      <Image source={Img} style={styles.docImg} />
+      {/* <Image source={Img} style={styles.docImg} /> */}
+      <Feather name="file-text" size={24} color="black" style={styles.docImg} />
       <View style={styles.docTxt}>
-        <Text style={styles.docTxtHead}>{formatTitle(title)}</Text>
+        <Text style={styles.docTxtHead}>{formatTitle(text)}</Text>
         <View style={styles.docTxtdate}>
           <Text style={styles.docTxtSmall}>{formatDate(createdAt ||"Dec 20, 2024")}</Text>
             <Text style={styles.docTxtSmall}>{docType}</Text>
@@ -75,11 +76,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   docImg: {
-    height: 50,
-    width: 40,
+    height: 30,
+    width: 30,
     borderWidth: 1,
     borderColor: "#b2babb",
     marginRight: 5,
+    padding: 10
   },
   docTxt: {
     flexDirection: "column",

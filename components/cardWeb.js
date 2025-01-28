@@ -1,10 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React from "react";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {  useRouter} from "expo-router";
 import Img from "../assets/images/home.png";
 const Card = ({ item }) => {
-  const { title, createdAt, $id, docType } = item
+  const { link, createdAt, $id,docType } = item
   const router = useRouter();
 
 // Format the date
@@ -17,11 +18,10 @@ const Card = ({ item }) => {
     });
   };
   
-  const formatTitle = (title) => {
-    if (!title) return 'Untitled';
-    return title.length > 20 ? `${title.slice(0, 27)}...` : title;
+const formatTitle = (link) => {
+    if (!link) return 'Untitled';
+    return link.length > 20 ? `${link.slice(0, 27)}...` : link;
   };
-
   return (
     <TouchableOpacity
       style={styles.Doc}
@@ -34,12 +34,13 @@ const Card = ({ item }) => {
       }}
     >
       <View style={styles.docImgBox}>
-      <Image source={Img} style={styles.docImg} />
+      {/* <Image source={Img} style={styles.docImg} /> */}
+      <MaterialCommunityIcons name="web" size={24} color="blue" style={styles.docImg} />
       <View style={styles.docTxt}>
-        <Text style={styles.docTxtHead}>{formatTitle(title)}</Text>
+        <Text style={styles.docTxtHead}>{formatTitle(link)}</Text>
         <View style={styles.docTxtdate}>
           <Text style={styles.docTxtSmall}>{formatDate(createdAt ||"Dec 20, 2024")}</Text>
-            <Text style={styles.docTxtSmall}>{docType}</Text>
+            <Text style={styles.docTxtSmall}>{ docType}</Text>
         </View>
         </View>
       </View>
@@ -75,11 +76,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   docImg: {
-    height: 50,
-    width: 40,
+    height: 30,
+    width: 30,
     borderWidth: 1,
     borderColor: "#b2babb",
     marginRight: 5,
+    padding: 10
   },
   docTxt: {
     flexDirection: "column",
@@ -99,3 +101,68 @@ const styles = StyleSheet.create({
     color: "grey",
   },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -75,7 +75,9 @@ const RootLayout = () => {
           <Stack.Screen name="file/[fileId]" />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="type/typing" options={{ headerTitle:'Write or Paste Text' }}/>
+          <Stack.Screen name="type/typing" options={{ headerTitle: 'Write or Paste Text' }} />
+          <Stack.Screen name="txt/[txtId]" />
+          <Stack.Screen name="url/[urlId]" />
           {/* <Stack.Screen name="details/[folderId]" /> */}
         </Stack>
         <StatusBar style="light" />

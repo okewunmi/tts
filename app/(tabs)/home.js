@@ -6,6 +6,7 @@ import {
   Alert,
   Modal,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,60 +20,94 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
 
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from "expo-file-system";
 
-
-import { createDocument, uploadFile, getCurrentUser } from "../../lib/appwrite";
+import {
+  createDocument,
+  uploadFile,
+  getCurrentUser,
+ createUrl
+} from "../../lib/appwrite";
 
 const home = () => {
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
-
+  const [showModal, setShowModal] = useState(false);
+  const [txt, setTxt] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const handleFileUpload = async () => {
-  try {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-    });
-
-    if (!result.canceled) {
-      const file = result.assets[0];
-
-      try {
-        // Upload file to storage and get URL
-        const { fileUrl, extractedText } = await uploadFile(file, "document");
-        setUploading(true);
-        
-        if (fileUrl) {
-          // Create document record
-          await createDocument({...file, extractedText}, user.$id, fileUrl);
-          Alert.alert("Success", "Document uploaded successfully");
-          router.replace("/library");
-        }
-      } catch (error) {
-        Alert.alert("Error", error.message || "Error uploading document");
-      }
-    }
-  } catch (error) {
-    Alert.alert("Error", error.message || "Error picking document");
-  }
-};
-
-  useEffect(() => {
-  const getUser = async () => {
     try {
-      const currentUser = await getCurrentUser(); // Verify this function's behavior
-      // console.log("Current User:", currentUser); // Log for debugging
-      setUser(currentUser);
+      const result = await DocumentPicker.getDocumentAsync({
+        type: [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ],
+      });
+
+      if (!result.canceled) {
+        const file = result.assets[0];
+
+        try {
+          // Upload file to storage and get URL
+          const { fileUrl, extractedText } = await uploadFile(file, "document");
+          setUploading(true);
+
+          if (fileUrl) {
+            // Create document record
+            await createDocument({ ...file, extractedText }, user.$id, fileUrl);
+            Alert.alert("Success", "Document uploaded successfully");
+            router.replace("/library");
+          }
+        } catch (error) {
+          Alert.alert("Error", error.message || "Error uploading document");
+        }
+      }
     } catch (error) {
-      console.error("Error fetching user:", error);
-    } finally {
-      setUploading(false)
+      Alert.alert("Error", error.message || "Error picking document");
     }
   };
-  getUser();
-}, []);
 
+  const handleUrl = async () => {
+    // console.log("clicked!!");
+    setShowModal(true);
+  };
 
+  // Handle Save
+  const handleSave = async () => {
+    if (!txt.trim()) {
+      Alert.alert("Error", " No text to save.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await createUrl(txt, user.$id);
+      // setForm(result);
+      Alert.alert("Success", "Text is save successfully!");
+      router.replace("/library");
+      return result;
+    } catch (error) {
+      Alert.alert("Saving text Failed", error.message || "An error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const currentUser = await getCurrentUser(); // Verify this function's behavior
+        // console.log("Current User:", currentUser); // Log for debugging
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setUploading(false);
+      }
+    };
+    getUser();
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -143,11 +178,12 @@ const home = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.box}>
-          <TouchableOpacity style={[styles.box1, styles.green]}
+          <TouchableOpacity
+            style={[styles.box1, styles.green]}
             onPress={() => {
-            router.push("type/typing");
-          }}>
-            
+              router.push("type/typing");
+            }}
+          >
             <Entypo
               name="text-document"
               size={25}
@@ -155,9 +191,11 @@ const home = () => {
               style={styles.icon3}
             />
             <Text style={styles.iconTxt}>Write or Paste Text</Text>
-        
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.box1, styles.blue]}>
+          <TouchableOpacity
+            style={[styles.box1, styles.blue]}
+            onPress={handleUrl}
+          >
             <MaterialCommunityIcons
               name="web"
               size={25}
@@ -180,6 +218,67 @@ const home = () => {
         </View>
         <View style={styles.recentDoc}></View>
       </View>
+      {showModal ? (
+        <Modal
+          transparent={true}
+          visible={showModal}
+          animationType="fade"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowModal(false)}
+          >
+            <View style={styles.modalContent}>
+              {/* Stop propagation prevents the modal from closing when clicking inside */}
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={(e) => e.stopPropagation()}
+              >
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Paste a Web Link</Text>
+                </View>
+
+                {/* Add your additional modal content here */}
+                <View style={styles.modalBody}>
+                  <TextInput
+                    editable
+                    placeholder="e.g. www.apple.com"
+                    style={styles.modalInput}
+                    value={txt}
+                    onChangeText={setTxt}
+                  />
+                </View>
+                <View style={styles.modalBtn}>
+                  <TouchableOpacity
+                    onPress={() => setShowModal(false)}
+                    style={[styles.Btn, styles.btn1]}
+                  >
+                    <View>
+                      <Text style={styles.btnTxt1}>Cancel</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    style={[styles.Btn, styles.btn2]}
+                  >
+                    <View>
+                      <Text style={styles.btnTxt2}>
+                        {isSubmitting ? (
+                          <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                          "Save"
+                        )}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      ) : null}
     </SafeAreaView>
   );
 };
@@ -385,5 +484,75 @@ const styles = StyleSheet.create({
   docTxtSmall: {
     fontSize: 12,
     color: "grey",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    width: "100%",
+    // maxWidth: 400,
+    marginBottom: 2,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderColor: "#cecece",
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  modalBody: {
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderColor: "#cecece",
+  },
+  modalInput: {
+    backgroundColor: "#cecece",
+    borderRadius: 10,
+    padding: 15,
+    // marginVertical: 5,
+  },
+  modalBtn: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingTop: 20,
+  },
+  Btn: {
+    paddingVertical: 15,
+    borderRadius: 50,
+    backgroundColor: "#cecece",
+    width: "48%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  btn1: {
+    backgroundColor: "#ebf5fb",
+  },
+  btn2: {
+    backgroundColor: "#3273F6",
+  },
+  btnTxt1: {
+    color: "#3273F6",
+    fontSize: 14,
+  },
+  btnTxt2: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  modalText: {
+    fontSize: 16,
   },
 });

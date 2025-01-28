@@ -12,10 +12,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import Feather from "@expo/vector-icons/Feather";
-import { getDocuments, getCurrentUser } from "../../lib/appwrite";
+import { getDocuments, getCurrentUser, getAllUserContent } from "../../lib/appwrite";
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getDocumentById } from '../../lib/appwrite';
+// import { getDocumentById } from '../../lib/appwrite';
 import Card from "../../components/Card";
+import CardTxt from "../../components/Card";
+import CardWeb from "../../components/Card";
 const DATA = [
   {
     id: "1",
@@ -48,11 +50,10 @@ const Item = ({ item, onPress, backgroundColor, textColor }) => (
   </TouchableOpacity>
 );
 const library = () => {
-  
-
   const [selectedId, setSelectedId] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
+  const [content, setContent] = useState([]);
   const [user, setUser] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -68,6 +69,18 @@ const library = () => {
         textColor={color}
       />
     );
+  };
+
+
+  const renderItems = ({ item }) => {
+    switch (item.docType) {
+      case 'Document':
+        return <Card item={item} />;
+      case 'Text':
+        return <CardTxt item={item} />;
+       case "Web":
+      return <CardWeb item={item} />;
+    }
   };
 
 useEffect(() => {
@@ -86,8 +99,8 @@ useEffect(() => {
 
   const fetchDocuments = async () => {
     try {
-      const userDocuments = await getDocuments(user.$id);
-      setDocuments(userDocuments);
+      const allContent = await getAllUserContent(user.$id);
+      setDocuments(allContent);
     } catch (error) {
       Alert.alert("Error", "Failed to fetch documents");
     }
@@ -136,7 +149,7 @@ useEffect(() => {
         <View style={styles.recentDoc}>
           <FlatList
           data={documents}
-          renderItem={({ item }) => <Card item={item} />}
+          renderItem={renderItems}
           keyExtractor={item => item.$id}
           refreshing={refreshing}
           onRefresh={handleRefresh}
