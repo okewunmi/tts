@@ -26,8 +26,8 @@ const Card = ({ item }) => {
     <TouchableOpacity
       style={styles.Doc}
       onPress={() => {
-        if ($id) {
-          router.push(`/file/${$id}`);
+        if (item.$id) {
+          router.push(`/file/${item.$id}`);
         } else {
           console.warn('Document ID is missing');
         }
@@ -75,8 +75,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   docImg: {
-    height: 50,
-    width: 40,
+    height: 45,
+    width: 45,
     borderWidth: 1,
     borderColor: "#b2babb",
     marginRight: 5,

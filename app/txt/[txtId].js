@@ -2,21 +2,21 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   ActivityIndicator,
   ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
-import { getTextById, getFilePreview } from "../../lib/appwrite";
+import { getTextById } from "../../lib/appwrite";
 // import TTSFuction from '..components/tts'
 
 
 const FileView = () => {
-  const { txtId } = useLocalSearchParams();
+  const { txtId} = useLocalSearchParams();
   const [document, setDocument] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,17 +25,26 @@ const FileView = () => {
 
   const fetchDocument = async () => {
     try {
+      if (!txtId) {
+        setError('No text ID provided');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Attempting to fetch text:', txtId); // Debug log
       const doc = await getTextById(txtId);
       setDocument(doc);
-      
+      setError(null);
       // Extract file ID from the fileUrl
       // const storedFileId = doc.fileUrl.split('/').pop();
       // // Get preview URL
       // const previewUrl = await getFilePreview(storedFileId);
       // setPdfUrl(previewUrl);
     } catch (error) {
-      console.error('Error loading document:', error);
-      Alert.alert("Error", "Failed to load document");
+      console.error('Error loading text:', error);
+      Alert.alert("Error", "Failed to text");
+      setError(null);
+       setDocument(null);
     } finally {
       setLoading(false);
     }
@@ -52,7 +61,7 @@ const FileView = () => {
   if (!document) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>No document found</Text>
+        <Text>No url found</Text>
       </View>
     );
   }
@@ -60,15 +69,11 @@ const FileView = () => {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.scroll}>
-        {/* <View style={styles.boxTxt}>
+        <View style={styles.boxTxt}>
           <Text style={styles.headerTitle}>
-            {document?.title}
+            {document?.text || 'Untitled'}
           </Text>
-          <Text style={styles.headerTitle}>
-            {document?.extractedText}
-          </Text>
-          
-        </View> */}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -84,7 +89,8 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: "#eeee",
-    paddingHorizontal: 20,
+    padding: 20,
+    marginTop: -25.2
   },
   
 });

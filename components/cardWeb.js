@@ -4,8 +4,8 @@ import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {  useRouter} from "expo-router";
 import Img from "../assets/images/home.png";
-const Card = ({ item }) => {
-  const { link, createdAt, $id,docType } = item
+const CardWeb = ({ item }) => {
+  const { link, createdAt, $id, docType } = item
   const router = useRouter();
 
 // Format the date
@@ -26,16 +26,19 @@ const formatTitle = (link) => {
     <TouchableOpacity
       style={styles.Doc}
       onPress={() => {
-        if ($id) {
-          router.push(`/file/${$id}`);
+        if (item.$id) {
+          router.push(`/url/${item.$id}`);
         } else {
           console.warn('Document ID is missing');
         }
       }}
     >
       <View style={styles.docImgBox}>
-      {/* <Image source={Img} style={styles.docImg} /> */}
-      <MaterialCommunityIcons name="web" size={24} color="blue" style={styles.docImg} />
+        {/* <Image source={Img} style={styles.docImg} /> */}
+        <View style={styles.docImg}>
+      <MaterialCommunityIcons name="web" size={26}
+            color="#3273F6" />
+          </View>
       <View style={styles.docTxt}>
         <Text style={styles.docTxtHead}>{formatTitle(link)}</Text>
         <View style={styles.docTxtdate}>
@@ -51,7 +54,7 @@ const formatTitle = (link) => {
   );
 };
 
-export default Card;
+export default CardWeb;
 
 const styles = StyleSheet.create({
   safe: {
@@ -76,12 +79,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   docImg: {
-    height: 30,
-    width: 30,
+    height: 48,
+    width: 48,
     borderWidth: 1,
-    borderColor: "#b2babb",
     marginRight: 5,
-    padding: 10
+    borderColor: "#dedede",
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 200
   },
   docTxt: {
     flexDirection: "column",

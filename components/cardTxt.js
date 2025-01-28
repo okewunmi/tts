@@ -1,47 +1,60 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React from "react";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
-import Feather from '@expo/vector-icons/Feather';
-import {  useRouter} from "expo-router";
+import Feather from "@expo/vector-icons/Feather";
+import { useRouter } from "expo-router";
 import Img from "../assets/images/home.png";
-const Card = ({ item }) => {
-  const { text, createdAt, $id, docType } = item
+
+const CardTxt = ({ item }) => {
+  const { text, createdAt, $id, docType } = item;
   const router = useRouter();
 
-// Format the date
+  // Format the date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
-  
-const formatTitle = (text) => {
-    if (!text) return 'Untitled';
+
+  const formatTitle = (text) => {
+    if (!text) return "Untitled";
     return text.length > 20 ? `${text.slice(0, 27)}...` : text;
   };
   return (
     <TouchableOpacity
       style={styles.Doc}
       onPress={() => {
-        if ($id) {
-          router.push(`/file/${$id}`);
-        } else {
-          console.warn('Document ID is missing');
+        console.log("txt ID:", $id); // Debug log
+        if (!item.$id) {
+          console.warn("Text ID is missing");
+          return;
         }
+        router.push(`/txt/${item.$id}`);
+        
       }}
     >
       <View style={styles.docImgBox}>
-      {/* <Image source={Img} style={styles.docImg} /> */}
-      <Feather name="file-text" size={24} color="black" style={styles.docImg} />
-      <View style={styles.docTxt}>
-        <Text style={styles.docTxtHead}>{formatTitle(text)}</Text>
-        <View style={styles.docTxtdate}>
-          <Text style={styles.docTxtSmall}>{formatDate(createdAt ||"Dec 20, 2024")}</Text>
-            <Text style={styles.docTxtSmall}>{docType}</Text>
+        {/* <Image source={Img} style={styles.docImg} /> */}
+        <View style={styles.docImg}>
+          <Feather
+          name="file-text"
+          size={26}
+          color="#3273F6"
+          
+        />
         </View>
+        
+        <View style={styles.docTxt}>
+          <Text style={styles.docTxtHead}>{formatTitle(text)}</Text>
+          <View style={styles.docTxtdate}>
+            <Text style={styles.docTxtSmall}>
+              {formatDate(createdAt || "Dec 20, 2024")}
+            </Text>
+            <Text style={styles.docTxtSmall}>{docType}</Text>
+          </View>
         </View>
       </View>
       <TouchableOpacity>
@@ -51,7 +64,7 @@ const formatTitle = (text) => {
   );
 };
 
-export default Card;
+export default CardTxt;
 
 const styles = StyleSheet.create({
   safe: {
@@ -68,20 +81,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 8,
-    marginBottom: 5
+    marginBottom: 5,
   },
   docImgBox: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
     alignItems: "center",
   },
   docImg: {
-    height: 30,
-    width: 30,
+    height: 48,
+    width: 48,
     borderWidth: 1,
-    borderColor: "#b2babb",
     marginRight: 5,
-    padding: 10
+    borderColor: "#dedede",
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 200
   },
   docTxt: {
     flexDirection: "column",

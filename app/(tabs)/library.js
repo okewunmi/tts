@@ -4,7 +4,6 @@ import {
   View,
   TouchableOpacity,
   FlatList,
-  ScrollView,
   Image,
 } from "react-native";
 import React, { useState, useEffect } from "react";
@@ -12,12 +11,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import Feather from "@expo/vector-icons/Feather";
-import { getDocuments, getCurrentUser, getAllUserContent } from "../../lib/appwrite";
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  getDocuments,
+  getCurrentUser,
+  getAllUserContent,
+} from "../../lib/appwrite";
+import { useLocalSearchParams, useRouter } from "expo-router";
 // import { getDocumentById } from '../../lib/appwrite';
 import Card from "../../components/Card";
-import CardTxt from "../../components/Card";
-import CardWeb from "../../components/Card";
+import CardTxt from "../../components/CardTxt";
+import CardWeb from "../../components/CardWeb";
 const DATA = [
   {
     id: "1",
@@ -71,19 +74,18 @@ const library = () => {
     );
   };
 
-
   const renderItems = ({ item }) => {
     switch (item.docType) {
-      case 'Document':
+      case "Document":
         return <Card item={item} />;
-      case 'Text':
+      case "Text":
         return <CardTxt item={item} />;
-       case "Web":
-      return <CardWeb item={item} />;
+      case "Web":
+        return <CardWeb item={item} />;
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     const getUser = async () => {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
@@ -114,7 +116,6 @@ useEffect(() => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      
       <View style={styles.top}>
         <View style={styles.Logo}>
           <MaterialCommunityIcons
@@ -128,37 +129,37 @@ useEffect(() => {
           <Feather name="search" size={28} color="black" />
         </TouchableOpacity>
       </View>
-      <View style={styles.topBtn}>
-        <TouchableOpacity style={[styles.btn, styles.btnBlue]}>
-          <Text style={[styles.btnTxt, styles.btnTxt1]}>Files</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, styles.btnGrey]}>
-          <Text style={[styles.btnTxt, styles.btnTxt2]}>Favourites</Text>
-        </TouchableOpacity>
-      </View>
+      <View>
+        <View style={styles.topBtn}>
+          <TouchableOpacity style={[styles.btn, styles.btnBlue]}>
+            <Text style={[styles.btnTxt, styles.btnTxt1]}>Files</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.btn, styles.btnGrey]}>
+            <Text style={[styles.btnTxt, styles.btnTxt2]}>Favourites</Text>
+          </TouchableOpacity>
+        </View>
 
-      <FlatList
-        style={styles.scroll}
-        horizontal
-        data={DATA}
-        renderItem={renderItem}
-        extraData={selectedId}
-        showsHorizontalScrollIndicator={false} // Hides the scroll thumb
-      />
-     
-        <View style={styles.recentDoc}>
-          <FlatList
+        {/* <FlatList
+          style={styles.scroll}
+          horizontal
+          data={DATA}
+          renderItem={renderItem}
+          extraData={selectedId}
+          showsHorizontalScrollIndicator={false} // Hides the scroll thumb
+        /> */}
+      </View>
+      <View style={styles.recentDoc}>
+        <FlatList
           data={documents}
           renderItem={renderItems}
-          keyExtractor={item => item.$id}
+          keyExtractor={(item) => item.$id}
           refreshing={refreshing}
           onRefresh={handleRefresh}
           style={styles.flatList}
           contentContainerStyle={styles.flatListContent}
           showsVerticalScrollIndicator={false}
         />
-        </View>
-        
+      </View>
     </SafeAreaView>
   );
 };
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingVertical: 25,
     paddingHorizontal: 15,
-  }, 
+  },
   top: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -240,14 +241,12 @@ const styles = StyleSheet.create({
     height: "100%",
     fontWeight: "bold",
   },
-   recentDoc: {
+  recentDoc: {
     width: "100%",
-    alignItems: "center", 
+    alignItems: "center",
   },
-  flatList: {
-    
-  },
+  flatList: {},
   flatListContent: {
-  paddingBottom: 20,
-},
+    paddingBottom: 20,
+  },
 });

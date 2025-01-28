@@ -9,9 +9,8 @@ import {
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
-import { getDocumentById, getFilePreview } from "../../lib/appwrite";
-// import TTSFuction from '..components/tts'
-
+import { getDocumentById} from "../../lib/appwrite";
+ import TTSFuction from '../../components/tts'
 
 const FileView = () => {
   const { fileId } = useLocalSearchParams();
@@ -30,7 +29,7 @@ const FileView = () => {
       
       // Extract file ID from the fileUrl
       // const storedFileId = doc.fileUrl.split('/').pop();
-      // // Get preview URL
+      // Get preview URL
       // const previewUrl = await getFilePreview(storedFileId);
       // setPdfUrl(previewUrl);
     } catch (error) {
@@ -62,14 +61,20 @@ const FileView = () => {
       <ScrollView style={styles.scroll}>
         <View style={styles.boxTxt}>
           <Text style={styles.headerTitle}>
-            {document?.title}
+            {document?.title || 'Untitled'}
           </Text>
+        </View>
+        
+        <View>
           <Text style={styles.headerTitle}>
-            {document?.extractedText}
+            {document?.createdAt || 'null'}
           </Text>
-          
+          {/* <Text style={styles.headerTitle}>
+            {document?.extractedText}
+          </Text> */}
         </View>
       </ScrollView>
+      <TTSFuction />
     </SafeAreaView>
   );
 };
@@ -84,8 +89,12 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: "#eeee",
-    paddingHorizontal: 20,
+    padding: 20,
+    marginTop: -25.2
   },
+  boxTxt: {
+  
+  }
   
 });
 
