@@ -76,7 +76,7 @@ const RootLayout = () => {
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="type/typing" options={{ headerTitle: 'Write or Paste Text' }} />
-          {/* <Stack.Screen name="url/[u" /> */}
+          <Stack.Screen name="url/[urlId]" />
           <Stack.Screen name="txt/[txtId]" />
 
 

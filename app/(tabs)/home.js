@@ -36,39 +36,70 @@ const home = () => {
   const [txt, setTxt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleFileUpload = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ],
-      });
+  // const handleFileUpload = async () => {
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({
+  //       type: [
+  //         "application/pdf",
+  //         "application/msword",
+  //         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  //       ],
+  //     });
 
-      if (!result.canceled) {
-        const file = result.assets[0];
+  //     if (!result.canceled) {
+  //       const file = result.assets[0];
 
-        try {
-          // Upload file to storage and get URL
-          const { fileUrl, extractedText } = await uploadFile(file, "document");
-          setUploading(true);
+  //       try {
+  //         // Upload file to storage and get URL
+  //         const { fileUrl, extractedText } = await uploadFile(file, "document");
+  //         setUploading(true);
 
-          if (fileUrl) {
-            // Create document record
-            await createDocument({ ...file, extractedText }, user.$id, fileUrl);
-            Alert.alert("Success", "Document uploaded successfully");
-            router.replace("/library");
-          }
-        } catch (error) {
-          Alert.alert("Error", error.message || "Error uploading document");
-        }
-      }
-    } catch (error) {
-      Alert.alert("Error", error.message || "Error picking document");
+  //         if (fileUrl) {
+  //           // Create document record
+  //           await createDocument({ ...file, extractedText }, user.$id, fileUrl);
+  //           Alert.alert("Success", "Document uploaded successfully");
+  //           router.replace("/library");
+  //         }
+  //       } catch (error) {
+  //         Alert.alert("Error", error.message || "Error uploading document");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     Alert.alert("Error", error.message || "Error picking document");
+  //   }
+  // };
+const handleFileUpload = async () => {
+  try {
+    setIsSubmitting(true);  // Start loading before any operations
+    setUploading(true);
+
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+    });
+
+    if (result.assets?.length > 0) {
+      const file = result.assets[0];
+      console.log("Selected file:", file);  // Debug file object
+
+      const { fileUrl, extractedText } = await uploadFile(file, "document");
+      console.log("Upload complete:", fileUrl);  // Confirm upload success
+
+      await createDocument({ 
+        ...file, 
+        extractedText: extractedText || " " 
+      }, user.$id, fileUrl);
+      
+      Alert.alert("Success", "Document processed successfully");
+      router.replace("/library");
     }
-  };
-
+  } catch (error) {
+    console.error("Full error stack:", error);
+    Alert.alert("Error", error.message || "Document processing failed");
+  } finally {
+    setUploading(false);
+    setIsSubmitting(false);  // Ensure loading states reset
+  }
+};
   const handleUrl = async () => {
     // console.log("clicked!!");
     setShowModal(true);

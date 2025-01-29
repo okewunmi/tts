@@ -134,7 +134,7 @@ const FileView = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       {webViewError ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
@@ -154,7 +154,7 @@ const FileView = () => {
           )}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

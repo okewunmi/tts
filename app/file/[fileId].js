@@ -69,9 +69,9 @@ const FileView = () => {
           <Text style={styles.headerTitle}>
             {document?.createdAt || 'null'}
           </Text>
-          {/* <Text style={styles.headerTitle}>
+          <Text style={styles.headerTitle}>
             {document?.extractedText}
-          </Text> */}
+          </Text>
         </View>
       </ScrollView>
       <TTSFuction />
