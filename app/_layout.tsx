@@ -71,21 +71,19 @@ const RootLayout = () => {
             headerTintColor: "#000",
           }}
         >
-          <Stack.Screen name="index" options={{ headerShown: false }} />
+ <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="file/[fileId]" />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="type/typing" options={{ headerTitle: 'Write or Paste Text' }} />
           <Stack.Screen name="url/[urlId]" />
           <Stack.Screen name="txt/[txtId]" />
-
-
-          {/* <Stack.Screen name="details/[folderId]" /> */}
+          <Stack.Screen name="scan/scanPage" />
         </Stack>
         <StatusBar style="light" />
       </GlobalProvider>
     </>
-  );
+  );scan
 };
 
 export default RootLayout;

@@ -7,6 +7,7 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
+
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,11 +23,13 @@ import { Link, router } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 
+
 import {
   createDocument,
   uploadFile,
   getCurrentUser,
- createUrl
+  createUrl,
+
 } from "../../lib/appwrite";
 
 const home = () => {
@@ -35,7 +38,8 @@ const home = () => {
   const [showModal, setShowModal] = useState(false);
   const [txt, setTxt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+
   // const handleFileUpload = async () => {
   //   try {
   //     const result = await DocumentPicker.getDocumentAsync({
@@ -68,38 +72,46 @@ const home = () => {
   //     Alert.alert("Error", error.message || "Error picking document");
   //   }
   // };
-const handleFileUpload = async () => {
-  try {
-    setIsSubmitting(true);  // Start loading before any operations
-    setUploading(true);
+  const handleFileUpload = async () => {
+    try {
+      setIsSubmitting(true); // Start loading before any operations
+      setUploading(true);
 
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
-    });
+      const result = await DocumentPicker.getDocumentAsync({
+        type: [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ],
+      });
 
-    if (result.assets?.length > 0) {
-      const file = result.assets[0];
-      console.log("Selected file:", file);  // Debug file object
+      if (result.assets?.length > 0) {
+        const file = result.assets[0];
+        console.log("Selected file:", file); // Debug file object
 
-      const { fileUrl, extractedText } = await uploadFile(file, "document");
-      console.log("Upload complete:", fileUrl);  // Confirm upload success
+        const { fileUrl, extractedText } = await uploadFile(file, "document");
+        console.log("Upload complete:", fileUrl); // Confirm upload success
 
-      await createDocument({ 
-        ...file, 
-        extractedText: extractedText || " " 
-      }, user.$id, fileUrl);
-      
-      Alert.alert("Success", "Document processed successfully");
-      router.replace("/library");
+        await createDocument(
+          {
+            ...file,
+            extractedText: extractedText || " ",
+          },
+          user.$id,
+          fileUrl
+        );
+
+        Alert.alert("Success", "Document processed successfully");
+        router.replace("/library");
+      }
+    } catch (error) {
+      console.error("Full error stack:", error);
+      Alert.alert("Error", error.message || "Document processing failed");
+    } finally {
+      setUploading(false);
+      setIsSubmitting(false); // Ensure loading states reset
     }
-  } catch (error) {
-    console.error("Full error stack:", error);
-    Alert.alert("Error", error.message || "Document processing failed");
-  } finally {
-    setUploading(false);
-    setIsSubmitting(false);  // Ensure loading states reset
-  }
-};
+  };
   const handleUrl = async () => {
     // console.log("clicked!!");
     setShowModal(true);
@@ -198,7 +210,11 @@ const handleFileUpload = async () => {
             />
             <Text style={styles.iconTxt}>Import Document</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.box1, styles.yellow]}>
+
+          
+          <TouchableOpacity style={[styles.box1, styles.yellow]}  onPress={() => {
+              router.push("scan/scan");
+            }} >
             <MaterialIcons
               name="document-scanner"
               size={24}
@@ -207,6 +223,9 @@ const handleFileUpload = async () => {
             />
             <Text style={styles.iconTxt}>Scan Pages</Text>
           </TouchableOpacity>
+          
+
+          
         </View>
         <View style={styles.box}>
           <TouchableOpacity
