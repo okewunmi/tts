@@ -150,8 +150,8 @@ const CameraPreviews = () => {
             <View style={styles.cornerBottomRight} />
           </View>
                   <View style={styles.captureButtonBox}>
-                  </View>
-          <TouchableOpacity 
+                 
+          {/* <TouchableOpacity 
             style={styles.captureButton}
             onPress={handleScan}
             disabled={scanning}
@@ -159,7 +159,8 @@ const CameraPreviews = () => {
             <View style={styles.innerCircle}>
               {scanning && <View style={styles.scanningIndicator} />}
             </View>
-          </TouchableOpacity>
+            </TouchableOpacity> */}
+            </View>
         </View>
       </CameraView>
     </View>
@@ -172,7 +173,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: '#000'
   },
   overlay: {
     flex: 1,
@@ -235,10 +235,10 @@ const styles = StyleSheet.create({
     borderColor: '#00ff00',
   },
   captureButton: {
-    position: 'absolute',
-    bottom: 50,
-    width: 80,
-    height: 80,
+    // position: 'absolute',
+    //  bottom: 25,
+    width: 60,
+    height: 60,
     borderRadius: 40,
     backgroundColor: 'transparent',
     borderWidth: 4,
@@ -246,15 +246,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     },
-    captureButtonBox: {
-      width: '100%',
-    height: 30,
-        backgroundColor: 'white',
-      position: 'absolute',
-  },
+  //   captureButtonBox: {
+  //     width: '100%',
+  //   height: 100,
+  //       backgroundColor: '#000',
+  //     position: 'absolute',
+  //     bottom: 0,
+  // },
   innerCircle: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     borderRadius: 30,
     backgroundColor: 'white',
     justifyContent: 'center',

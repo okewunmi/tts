@@ -92,7 +92,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { getWebById } from "../../lib/appwrite";
 import { WebView } from "react-native-webview";
-
+import TTSFuction from '../../components/Tts'
 const { height } = Dimensions.get("window");
 
 const FileView = () => {
@@ -154,6 +154,7 @@ const FileView = () => {
           )}
         />
       )}
+       <TTSFuction />
     </View>
   );
 };

@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { getTextById } from "../../lib/appwrite";
-// import TTSFuction from '..components/tts'
+ import TTSFuction from '../../components/Tts'
 
 
 const FileView = () => {
@@ -75,6 +75,7 @@ const FileView = () => {
           </Text>
         </View>
       </ScrollView>
+<TTSFuction/>
     </SafeAreaView>
   );
 };

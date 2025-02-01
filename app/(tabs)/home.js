@@ -213,7 +213,7 @@ const home = () => {
 
           
           <TouchableOpacity style={[styles.box1, styles.yellow]}  onPress={() => {
-              router.push("scan/scan");
+              router.push("scan/scanPage");
             }} >
             <MaterialIcons
               name="document-scanner"
