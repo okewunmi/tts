@@ -1,20 +1,14 @@
 {
-  "name": "tts",
-  "main": "expo-router/entry",
+  "name": "starter-template",
   "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "type": "module",
   "scripts": {
-    "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "test": "jest --watchAll",
-    "lint": "expo lint"
-  },
-  "jest": {
-    "preset": "jest-expo"
+    "format": "prettier --write ."
   },
   "dependencies": {
+<<<<<<< HEAD
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
@@ -68,18 +62,11 @@
     "react-native-webview": "13.12.5",
     "rn-text-detector": "^0.0.8",
     "word-extractor": "^1.0.4"
+=======
+    "node-appwrite": "^12.0.1"
+>>>>>>> 9ceddd7f529a88fbad247734468c000d882b2119
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/plugin-transform-class-static-block": "^7.26.0",
-    "@types/jest": "^29.5.12",
-    "@types/react": "~18.3.12",
-    "@types/react-test-renderer": "^18.3.0",
-    "jest": "^29.2.1",
-    "jest-expo": "~52.0.2",
-    "mammoth": "^1.9.0",
-    "react-test-renderer": "18.3.1",
-    "typescript": "^5.3.3"
-  },
-  "private": true
+    "prettier": "^3.2.5"
+  }
 }
