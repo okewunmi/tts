@@ -9,6 +9,7 @@
   },
   "dependencies": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
@@ -62,6 +63,9 @@
     "react-native-webview": "13.12.5",
     "rn-text-detector": "^0.0.8",
     "word-extractor": "^1.0.4"
+=======
+    "node-appwrite": "^12.0.1"
+>>>>>>> 9ceddd7f529a88fbad247734468c000d882b2119
 =======
     "node-appwrite": "^12.0.1"
 >>>>>>> 9ceddd7f529a88fbad247734468c000d882b2119
