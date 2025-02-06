@@ -7,7 +7,6 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
-
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,13 +22,12 @@ import { Link, router } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 
-
 import {
   createDocument,
   uploadFile,
   getCurrentUser,
   createUrl,
-
+  extractFileText,
 } from "../../lib/appwrite";
 
 const home = () => {
@@ -39,79 +37,57 @@ const home = () => {
   const [txt, setTxt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+const handleFileUpload = async () => {
+  try {
+    setIsSubmitting(true);
+    setUploading(true);
 
-  // const handleFileUpload = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({
-  //       type: [
-  //         "application/pdf",
-  //         "application/msword",
-  //         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  //       ],
-  //     });
+    // Show file picker
+    const result = await DocumentPicker.getDocumentAsync({
+      type: [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ],
+      copyToCacheDirectory: true,
+    });
 
-  //     if (!result.canceled) {
-  //       const file = result.assets[0];
-
-  //       try {
-  //         // Upload file to storage and get URL
-  //         const { fileUrl, extractedText } = await uploadFile(file, "document");
-  //         setUploading(true);
-
-  //         if (fileUrl) {
-  //           // Create document record
-  //           await createDocument({ ...file, extractedText }, user.$id, fileUrl);
-  //           Alert.alert("Success", "Document uploaded successfully");
-  //           router.replace("/library");
-  //         }
-  //       } catch (error) {
-  //         Alert.alert("Error", error.message || "Error uploading document");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     Alert.alert("Error", error.message || "Error picking document");
-  //   }
-  // };
-  const handleFileUpload = async () => {
-    try {
-      setIsSubmitting(true); // Start loading before any operations
-      setUploading(true);
-
-      const result = await DocumentPicker.getDocumentAsync({
-        type: [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ],
-      });
-
-      if (result.assets?.length > 0) {
-        const file = result.assets[0];
-        console.log("Selected file:", file); // Debug file object
-
-        const { fileUrl, extractedText } = await uploadFile(file, "document");
-        console.log("Upload complete:", fileUrl); // Confirm upload success
-
-        await createDocument(
-          {
-            ...file,
-            extractedText: extractedText || " ",
-          },
-          user.$id,
-          fileUrl
-        );
-
-        Alert.alert("Success", "Document processed successfully");
-        router.replace("/library");
-      }
-    } catch (error) {
-      console.error("Full error stack:", error);
-      Alert.alert("Error", error.message || "Document processing failed");
-    } finally {
-      setUploading(false);
-      setIsSubmitting(false); // Ensure loading states reset
+    if (result.canceled || !result.assets?.length) {
+      console.log("File selection canceled");
+      return;
     }
-  };
+
+    const file = result.assets[0];
+    console.log("Selected file:", file.name);
+
+    // Upload file to Appwrite Storage
+    const { fileUrl } = await uploadFile(file, "document");
+
+    // Extract text client-side
+    const extractedText = await extractFileText(file);
+    console.log("Extracted text length:", extractedText.length);
+
+    // Create document record in Appwrite Database
+    await createDocument(
+      {
+        ...file,
+        extractedText: extractedText || " ",
+      },
+      user.$id,
+      fileUrl
+    );
+
+    Alert.alert("Success", "Document processed successfully");
+    router.replace("/library");
+  } catch (error) {
+    console.error("Upload pipeline error:", error);
+    Alert.alert("Error", error.message || "Document processing failed");
+  } finally {
+    setUploading(false);
+    setIsSubmitting(false);
+  }
+};
+
   const handleUrl = async () => {
     // console.log("clicked!!");
     setShowModal(true);
@@ -211,10 +187,12 @@ const home = () => {
             <Text style={styles.iconTxt}>Import Document</Text>
           </TouchableOpacity>
 
-          
-          <TouchableOpacity style={[styles.box1, styles.yellow]}  onPress={() => {
+          <TouchableOpacity
+            style={[styles.box1, styles.yellow]}
+            onPress={() => {
               router.push("scan/scanPage");
-            }} >
+            }}
+          >
             <MaterialIcons
               name="document-scanner"
               size={24}
@@ -223,9 +201,6 @@ const home = () => {
             />
             <Text style={styles.iconTxt}>Scan Pages</Text>
           </TouchableOpacity>
-          
-
-          
         </View>
         <View style={styles.box}>
           <TouchableOpacity

@@ -195,7 +195,7 @@ const Library = () => {
     </SafeAreaView>
   );
 };
-// npm i @react-native-async-storage/async-storage
+
 export default Library;
 
 const styles = StyleSheet.create({

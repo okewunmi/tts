@@ -70,12 +70,12 @@ const FileView = () => {
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.scroll}>
         <View style={styles.boxTxt}>
-          <Text style={styles.headerTitle}>
+          <Text style={styles.txt}>
             {document?.text || 'Untitled'}
           </Text>
         </View>
       </ScrollView>
-<TTSFuction/>
+      <TTSFuction/>
     </SafeAreaView>
   );
 };
@@ -90,9 +90,16 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: "#eeee",
-    padding: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     marginTop: -25.2
   },
+  txt:{
+textAlign: 'justify',
+lineHeight: 25,
+fontSize: 15,
+fontWeight: '500'
+  }
   
 });
 

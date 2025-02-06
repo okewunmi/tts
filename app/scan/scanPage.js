@@ -69,7 +69,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const CameraPreviews = () => {
+const CameraPreviews = ({ onScanComplete }) => {
   const cameraRef = useRef(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(false);
@@ -92,7 +92,28 @@ const CameraPreviews = () => {
     ).start();
   };
 
-  const handleScan = async () => {
+  // const handleScan = async () => {
+  //   if (!permission?.granted) {
+  //     await requestPermission();
+  //     return;
+  //   }
+
+  //   if (cameraRef.current) {
+  //     setScanning(true);
+  //     try {
+  //       const photo = await cameraRef.current.takePictureAsync();
+  //       const result = await scanPhoto(photo.uri);
+  //       Alert.alert("Success", "Text extracted and saved!");
+  //       return result;
+  //     } catch (error) {
+  //       Alert.alert("Error", error.message);
+  //     } finally {
+  //       setScanning(false);
+  //     }
+  //   }
+  // };
+
+const handleScan = async () => {
     if (!permission?.granted) {
       await requestPermission();
       return;
@@ -101,10 +122,37 @@ const CameraPreviews = () => {
     if (cameraRef.current) {
       setScanning(true);
       try {
-        const photo = await cameraRef.current.takePictureAsync();
-        const result = await scanPhoto(photo.uri);
-        Alert.alert("Success", "Text extracted and saved!");
-        return result;
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.8,
+          base64: false,
+        });
+
+        // Process image through pipeline
+        const processedImage = await ImageManipulator.manipulateAsync(
+          photo.uri,
+          [{ resize: { width: 1200 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+
+        // Extract text
+        const extractionResult = await recognizeText({
+          imagePath: processedImage.uri,
+          detectType: 'text',
+          language: 'eng',
+        });
+
+        // Handle extraction result
+        if (extractionResult && extractionResult.length > 0) {
+          const combinedText = extractionResult
+            .map(item => item.text)
+            .join('\n')
+            .replace(/[^\w\s.,!?\-@#$%^&*()]/g, '')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+          
+          onScanComplete(combinedText);
+          Alert.alert("Success", "Text extracted successfully!");
+        }
       } catch (error) {
         Alert.alert("Error", error.message);
       } finally {

@@ -75,6 +75,7 @@ const RootLayout = () => {
           <Stack.Screen name="file/[fileId]" />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="voices/selectVoice" options={{ headerShown: false }} />
           <Stack.Screen
             name="type/typing"
             options={{ headerTitle: "Write or Paste Text" }}
@@ -85,7 +86,7 @@ const RootLayout = () => {
             name="scan/scanPage"
             options={{
               headerStyle: {
-                backgroundColor: "#000",
+                backgroundColor: "black",
               }
             }}
           />
