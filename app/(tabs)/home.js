@@ -21,6 +21,7 @@ import { Link, router } from "expo-router";
 
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
+import * as Network from 'expo-network';
 
 import {
   createDocument,
@@ -28,6 +29,7 @@ import {
   getCurrentUser,
   createUrl,
   extractFileText,
+  chunkedUploadFile
 } from "../../lib/appwrite";
 
 const home = () => {
@@ -37,10 +39,92 @@ const home = () => {
   const [txt, setTxt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const checkNetworkConnection = async () => {
+    const netInfo = await Network.getNetworkStateAsync();
+    return netInfo.isConnected && netInfo.isInternetReachable;
+  };
+  
+
+// const handleFileUpload = async () => {
+//   try {
+//      // Check network first
+//      const isConnected = await checkNetworkConnection();
+//      if (!isConnected) {
+//        Alert.alert("No Connection", "Please check your internet connection and try again");
+//        return;
+//      }
+//     setIsSubmitting(true);
+//     setUploading(true);
+
+//     // Show file picker
+//     const result = await DocumentPicker.getDocumentAsync({
+//       type: [
+//         "application/pdf",
+//         "application/msword",
+//         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+//       ],
+//       copyToCacheDirectory: true,
+//     });
+
+//     if (result.canceled || !result.assets?.length) {
+//       console.log("File selection canceled");
+//       return;
+//     }
+
+//     const file = result.assets[0];
+//     console.log("Selected file:", file.name);
+
+//     // Upload file to Appwrite Storage
+//     // const { fileUrl } = await uploadFile(file, "document");
+//     const { fileUrl } = await chunkedUploadFile(file, "document");
+
+//     // Extract text client-side
+//     const extractedText = await extractFileText(file);
+//     console.log("Extracted text length:", extractedText.length);
+
+//     // Create document record in Appwrite Database
+//     await createDocument(
+//       {
+//         ...file,
+//         extractedText: extractedText || " ",
+//       },
+//       user.$id,
+//       fileUrl
+//     );
+
+//     Alert.alert("Success", "Document processed successfully");
+//     router.replace("/library");
+//   } catch (error) {
+//     onsole.error("Upload pipeline error:", {
+//       message: error.message,
+//       stack: error.stack,
+//       networkState: await Network.getNetworkStateAsync(),
+//       fileSize: file ? file.size : 'unknown'
+//     });
+    
+//     // More helpful user error message
+//     let errorMessage = "Document processing failed";
+//     if (error.message.includes("network request failed")) {
+//       errorMessage = "Network connection issue. Please check your internet and try again.";
+//     } else if (error.message.includes("timeout")) {
+//       errorMessage = "Upload timed out. The file might be too large.";
+//     }
+    
+//     Alert.alert("Error", errorMessage);
+//   } finally {
+//     setUploading(false);
+//     setIsSubmitting(false);
+//   }
+// };
+
+
 const handleFileUpload = async () => {
   try {
     setIsSubmitting(true);
     setUploading(true);
+
+    // Allowed file extensions
+    const allowedExtensions = ["pdf", "doc", "docx"];
 
     // Show file picker
     const result = await DocumentPicker.getDocumentAsync({
@@ -52,41 +136,66 @@ const handleFileUpload = async () => {
       copyToCacheDirectory: true,
     });
 
-    if (result.canceled || !result.assets?.length) {
-      console.log("File selection canceled");
+    if (!result.assets || result.assets.length === 0) {
+      console.log("No file selected");
       return;
     }
 
     const file = result.assets[0];
     console.log("Selected file:", file.name);
+    console.log("File MIME Type:", file?.mimeType);
 
-    // Upload file to Appwrite Storage
-    const { fileUrl } = await uploadFile(file, "document");
+    // Extract file extension
+    const fileExtension = file.name.split(".").pop().toLowerCase();
 
-    // Extract text client-side
-    const extractedText = await extractFileText(file);
-    console.log("Extracted text length:", extractedText.length);
+    // Validate file extension
+    if (!allowedExtensions.includes(fileExtension)) {
+      throw new Error(`File extension not allowed: .${fileExtension}`);
+    }
+
+    // Prepare file data for upload
+    const fileData = {
+      name: file.name,
+      uri: file.uri,
+      type: file.mimeType,
+      size: file.size,
+    };
+
+    // Upload file
+    const uploadedFile = await uploadFile(fileData);
+    console.log("Upload response:", uploadedFile);
+
+    if (!uploadedFile || !uploadedFile.fileUrl) {
+      throw new Error("File upload failed: No file URL returned");
+    }
+
+    console.log("Uploaded File URL:", uploadedFile.fileUrl);
 
     // Create document record in Appwrite Database
-    await createDocument(
-      {
-        ...file,
-        extractedText: extractedText || " ",
-      },
-      user.$id,
-      fileUrl
-    );
+    await createDocument(file, user.$id, uploadedFile.fileUrl);
 
-    Alert.alert("Success", "Document processed successfully");
+    Alert.alert("Success", "Document uploaded successfully");
+
     router.replace("/library");
   } catch (error) {
-    console.error("Upload pipeline error:", error);
-    Alert.alert("Error", error.message || "Document processing failed");
+    console.error("Upload error:", error);
+    let errorMessage = "Document upload failed";
+
+    if (error.message.includes("File extension not allowed")) {
+      errorMessage = "This file type is not supported. Please upload a PDF, DOC, or DOCX file.";
+    } else if (error.message.includes("network request failed")) {
+      errorMessage = "Network issue. Please check your connection and try again.";
+    } else if (error.message.includes("timeout")) {
+      errorMessage = "Upload timed out. File might be too large.";
+    }
+
+    Alert.alert("Error", errorMessage);
   } finally {
     setUploading(false);
     setIsSubmitting(false);
   }
 };
+
 
   const handleUrl = async () => {
     // console.log("clicked!!");

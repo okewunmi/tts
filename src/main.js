@@ -1,12 +1,25 @@
-import { Client, Users } from 'node-appwrite';
+import { Client, Users } from 'appwrite';
 
 // This Appwrite function will be executed every time your function is triggered
+export const config = {
+  endpoint: "https://cloud.appwrite.io/v1",
+  platform: "com.company.VoxifyApp",
+  projectId: "6781ffea00354ecae5ca",
+  databaseId: "678225de0029c6d82768",
+  usersCollectionId: "6782270b0011ef9d63d9",
+  documentCollectionId: "6782292f002ebedeac72",
+  textCollectionId: "6797305700168882224d",
+  webCollectionId: "67980e18003da84092ef",
+  scanCollectionId: "679aa917001990138b97",
+  storageId: "67822e6200158bc006df",
+  TextExtraction: "text-extraction",
+};
 export default async ({ req, res, log, error }) => {
   // You can use the Appwrite SDK to interact with other services
   // For this example, we're using the Users service
   const client = new Client()
-    .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+    .setEndpoint(config.endpoint)
+    .setProject(config.projectId)
     .setKey(req.headers['x-appwrite-key'] ?? '');
   const users = new Users(client);
 

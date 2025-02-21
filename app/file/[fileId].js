@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { getDocumentById } from "../../lib/appwrite";
-import TTSFuction from "../../components/Tts";
+ import TTSFuction from "../../components/Tts";
 
 const FileView = () => {
   const { fileId } = useLocalSearchParams();

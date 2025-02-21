@@ -69,7 +69,7 @@ const TabLayout = () => {
           headerShown: false,
           tabBarStyle: {
           backgroundColor: "#fff",
-            paddingTop: 8,
+            paddingTop: 10,
             height: 70,
             width: '100%',
             alignSelf: "center",
