@@ -15,9 +15,9 @@ import { getTextById } from "../../lib/appwrite";
 const FileView = () => {
   const { txtId} = useLocalSearchParams();
   const [document, setDocument] = useState(null);
-  const [pdfUrl, setPdfUrl] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     fetchDocument();
@@ -35,11 +35,7 @@ const FileView = () => {
       const doc = await getTextById(txtId);
       setDocument(doc);
       setError(null);
-      // Extract file ID from the fileUrl
-      // const storedFileId = doc.fileUrl.split('/').pop();
-      // // Get preview URL
-      // const previewUrl = await getFilePreview(storedFileId);
-      // setPdfUrl(previewUrl);
+    
     } catch (error) {
       console.error('Error loading text:', error);
       Alert.alert("Error", "Failed to text");
@@ -75,7 +71,7 @@ const FileView = () => {
           </Text>
         </View>
       </ScrollView>
-      <TTSFuction/>
+      <TTSFuction text={document?.text || "Untitled"}  />
     </SafeAreaView>
   );
 };
@@ -99,7 +95,11 @@ textAlign: 'justify',
 lineHeight: 25,
 fontSize: 15,
 fontWeight: '500'
-  }
+  },
+  highlightedText: {
+    color: "red",
+    textDecorationLine: "underline",
+  },
   
 });
 

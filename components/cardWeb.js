@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   docTxtHead: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
     paddingRight: 10,
   },
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   docTxtSmall: {
-    fontSize: 12,
+    fontSize: 11,
     color: "grey",
   },
 });

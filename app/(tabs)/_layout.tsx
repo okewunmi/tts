@@ -69,8 +69,12 @@ const TabLayout = () => {
           headerShown: false,
           tabBarStyle: {
           backgroundColor: "#fff",
-            paddingTop: 10,
+            paddingTop: 5,
             height: 70,
+            borderTopWidth: 1,
+            borderColor: "#E0E0E0",
+            elevation: 0,
+          paddingBottom: 15,
             width: '100%',
             alignSelf: "center",
             justifyContent: "center",
@@ -99,7 +103,7 @@ const TabLayout = () => {
             tabBarIcon: ({ focused }) => (
               <Entypo
                 name={"text-document"}
-                size={focused ? 35 : 30}
+                size={focused ?30 : 25}
                 color={focused ? "#3273F6" : "#9E9898"}
               />
             ),

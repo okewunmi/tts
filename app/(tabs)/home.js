@@ -7,6 +7,7 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
+  FlatList
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,6 +18,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router } from "expo-router";
 
 import * as DocumentPicker from "expo-document-picker";
@@ -28,33 +30,128 @@ import {
   uploadFile,
   getCurrentUser,
   createUrl,
+  getAllUserContent,
   extractFileText,
   chunkedUploadFile
 } from "../../lib/appwrite";
-
+import Card from "../../components/Card";
+import CardTxt from "../../components/CardTxt";
+import CardWeb from "../../components/CardWeb";
 const home = () => {
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [txt, setTxt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [cachedDocuments, setCachedDocuments] = useState(null);
 
   const checkNetworkConnection = async () => {
     const netInfo = await Network.getNetworkStateAsync();
     return netInfo.isConnected && netInfo.isInternetReachable;
   };
   
+  const renderItems = ({ item }) => {
+    switch (item.docType) {
+      case "Document":
+        return <Card item={item} />;
+      case "Text":
+        return <CardTxt item={item} />;
+      case "Web":
+        return <CardWeb item={item} />;
+      default:
+        return null;
+    }
+  };
+
+   // Load cached data on initial mount
+   useEffect(() => {
+    const loadCachedData = async () => {
+      try {
+        const cached = await AsyncStorage.getItem('documents');
+        if (cached) {
+          setCachedDocuments(JSON.parse(cached));
+          setDocuments(JSON.parse(cached));
+        }
+      } catch (error) {
+        console.error('Error loading cached data:', error);
+      }
+    };
+    
+    loadCachedData();
+  }, []);
+
+
+  // Load cached data on initial mount
+  useEffect(() => {
+    const loadCachedData = async () => {
+      try {
+        const cached = await AsyncStorage.getItem('documents');
+        if (cached) {
+          setCachedDocuments(JSON.parse(cached));
+          setDocuments(JSON.parse(cached));
+        }
+      } catch (error) {
+        console.error('Error loading cached data:', error);
+      }
+    };
+    
+    loadCachedData();
+  }, []);
+
+  // Initialize data and fetch user/documents
+  useEffect(() => {
+    const initializeData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          const allContent = await getAllUserContent(currentUser.$id);
+          setDocuments(allContent);
+          // Cache the new data
+          await AsyncStorage.setItem('documents', JSON.stringify(allContent));
+        }
+      } catch (error) {
+        setError('Failed to load content');
+        Alert.alert("Error", "Failed to load content");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeData();
+  }, []);
+
+  const fetchDocuments = async () => {
+    setError(null);
+    try {
+      const allContent = await getAllUserContent(user.$id);
+      setDocuments(allContent);
+      await AsyncStorage.setItem('documents', JSON.stringify(allContent));
+    } catch (error) {
+      setError('Failed to fetch documents');
+      Alert.alert("Error", "Failed to fetch documents");
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchDocuments();
+    setRefreshing(false);
+  };
 
 // const handleFileUpload = async () => {
 //   try {
-//      // Check network first
-//      const isConnected = await checkNetworkConnection();
-//      if (!isConnected) {
-//        Alert.alert("No Connection", "Please check your internet connection and try again");
-//        return;
-//      }
 //     setIsSubmitting(true);
 //     setUploading(true);
+
+//     // Allowed file extensions
+//     const allowedExtensions = ["pdf", "doc", "docx"];
 
 //     // Show file picker
 //     const result = await DocumentPicker.getDocumentAsync({
@@ -66,50 +163,59 @@ const home = () => {
 //       copyToCacheDirectory: true,
 //     });
 
-//     if (result.canceled || !result.assets?.length) {
-//       console.log("File selection canceled");
+//     if (!result.assets || result.assets.length === 0) {
+//       console.log("No file selected");
 //       return;
 //     }
 
 //     const file = result.assets[0];
 //     console.log("Selected file:", file.name);
+//     console.log("File MIME Type:", file?.mimeType);
 
-//     // Upload file to Appwrite Storage
-//     // const { fileUrl } = await uploadFile(file, "document");
-//     const { fileUrl } = await chunkedUploadFile(file, "document");
+//     // Extract file extension
+//     const fileExtension = file.name.split(".").pop().toLowerCase();
 
-//     // Extract text client-side
-//     const extractedText = await extractFileText(file);
-//     console.log("Extracted text length:", extractedText.length);
+//     // Validate file extension
+//     if (!allowedExtensions.includes(fileExtension)) {
+//       throw new Error(`File extension not allowed: .${fileExtension}`);
+//     }
+
+//     // Prepare file data for upload
+//     const fileData = {
+//       name: file.name,
+//       uri: file.uri,
+//       type: file.mimeType,
+//       size: file.size,
+//     };
+
+//     // Upload file
+//     const uploadedFile = await uploadFile(fileData);
+//     console.log("Upload response:", uploadedFile);
+
+//     if (!uploadedFile || !uploadedFile.fileUrl) {
+//       throw new Error("File upload failed: No file URL returned");
+//     }
+
+//     console.log("Uploaded File URL:", uploadedFile.fileUrl);
 
 //     // Create document record in Appwrite Database
-//     await createDocument(
-//       {
-//         ...file,
-//         extractedText: extractedText || " ",
-//       },
-//       user.$id,
-//       fileUrl
-//     );
+//     await createDocument(file, user.$id, uploadedFile.fileUrl);
 
-//     Alert.alert("Success", "Document processed successfully");
+//     Alert.alert("Success", "Document uploaded successfully");
+
 //     router.replace("/library");
 //   } catch (error) {
-//     onsole.error("Upload pipeline error:", {
-//       message: error.message,
-//       stack: error.stack,
-//       networkState: await Network.getNetworkStateAsync(),
-//       fileSize: file ? file.size : 'unknown'
-//     });
-    
-//     // More helpful user error message
-//     let errorMessage = "Document processing failed";
-//     if (error.message.includes("network request failed")) {
-//       errorMessage = "Network connection issue. Please check your internet and try again.";
+//     console.error("Upload error:", error);
+//     let errorMessage = "Document upload failed";
+
+//     if (error.message.includes("File extension not allowed")) {
+//       errorMessage = "This file type is not supported. Please upload a PDF, DOC, or DOCX file.";
+//     } else if (error.message.includes("network request failed")) {
+//       errorMessage = "Network issue. Please check your connection and try again.";
 //     } else if (error.message.includes("timeout")) {
-//       errorMessage = "Upload timed out. The file might be too large.";
+//       errorMessage = "Upload timed out. File might be too large.";
 //     }
-    
+
 //     Alert.alert("Error", errorMessage);
 //   } finally {
 //     setUploading(false);
@@ -117,16 +223,12 @@ const home = () => {
 //   }
 // };
 
-
 const handleFileUpload = async () => {
   try {
     setIsSubmitting(true);
     setUploading(true);
 
-    // Allowed file extensions
     const allowedExtensions = ["pdf", "doc", "docx"];
-
-    // Show file picker
     const result = await DocumentPicker.getDocumentAsync({
       type: [
         "application/pdf",
@@ -142,18 +244,12 @@ const handleFileUpload = async () => {
     }
 
     const file = result.assets[0];
-    console.log("Selected file:", file.name);
-    console.log("File MIME Type:", file?.mimeType);
-
-    // Extract file extension
     const fileExtension = file.name.split(".").pop().toLowerCase();
 
-    // Validate file extension
     if (!allowedExtensions.includes(fileExtension)) {
       throw new Error(`File extension not allowed: .${fileExtension}`);
     }
 
-    // Prepare file data for upload
     const fileData = {
       name: file.name,
       uri: file.uri,
@@ -161,41 +257,28 @@ const handleFileUpload = async () => {
       size: file.size,
     };
 
-    // Upload file
-    const uploadedFile = await uploadFile(fileData);
-    console.log("Upload response:", uploadedFile);
+    // Extract text
+    const extractedText = await extractTextFromFile(file);
 
+    // Upload file to Appwrite
+    const uploadedFile = await uploadFile(fileData);
     if (!uploadedFile || !uploadedFile.fileUrl) {
       throw new Error("File upload failed: No file URL returned");
     }
 
-    console.log("Uploaded File URL:", uploadedFile.fileUrl);
-
-    // Create document record in Appwrite Database
-    await createDocument(file, user.$id, uploadedFile.fileUrl);
+    // Create document in Appwrite with extracted text
+    await createDocument(file, user.$id, uploadedFile.fileUrl, extractedText);
 
     Alert.alert("Success", "Document uploaded successfully");
-
     router.replace("/library");
   } catch (error) {
     console.error("Upload error:", error);
-    let errorMessage = "Document upload failed";
-
-    if (error.message.includes("File extension not allowed")) {
-      errorMessage = "This file type is not supported. Please upload a PDF, DOC, or DOCX file.";
-    } else if (error.message.includes("network request failed")) {
-      errorMessage = "Network issue. Please check your connection and try again.";
-    } else if (error.message.includes("timeout")) {
-      errorMessage = "Upload timed out. File might be too large.";
-    }
-
-    Alert.alert("Error", errorMessage);
+    Alert.alert("Error", error.message || "Document upload failed");
   } finally {
     setUploading(false);
     setIsSubmitting(false);
   }
 };
-
 
   const handleUrl = async () => {
     // console.log("clicked!!");
@@ -350,7 +433,23 @@ const handleFileUpload = async () => {
             </View>
           </Link>
         </View>
-        <View style={styles.recentDoc}></View>
+       
+        <View style={styles.recentDoc}>
+        <FlatList
+          data={documents.slice(0, 3)}
+          renderItem={renderItems}
+          keyExtractor={(item) => item.$id}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          style={styles.flatList}
+          contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={true}
+        />
+      </View>
       </View>
       {showModal ? (
         <Modal
@@ -565,6 +664,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     justifyContent: "space-between",
     // marginVertical: 9,
+    paddingTop: 5
   },
   recentTxt1: {
     fontSize: 16,
@@ -581,11 +681,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     gap: 10,
     height: "auto",
+    paddingTop: 10
   },
   recentDoc: {
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 3,
+    
   },
   Doc: {
     width: "100%",
