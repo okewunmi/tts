@@ -18,25 +18,32 @@ const Card = ({ text, onBoundary }) => {
   // useEffect(() => {
   //   getAvailableVoices();
   // }, []);
+  useEffect(() => {
+    Speech.speak("", { rate: 0.8 });
+  }, []);
 
-  const speak = () => {
+  
+  const speak = async () => {
     if (!text) return;
     if (playing) {
       Speech.stop();
       setPlaying(false);
     } else {
-      Speech.speak(text, {
-        language: "en-US",
-        rate: speed,
-        pitch: 1.1,
-        onBoundary: onBoundary,
-        voice: "com.apple.ttsbundle.Samantha-compact",
-        onDone: () => setPlaying(false),
-        onStopped: () => setPlaying(false),
-      });
-      setPlaying(true);
+      await Speech.stop(); 
+      setTimeout(() => {
+        setPlaying(true);
+        Speech.speak(text, {
+          language: "en-US",
+          rate: speed,
+          pitch: 1.1,
+          onBoundary: onBoundary,
+          onDone: () => setPlaying(false),
+          onStopped: () => setPlaying(false),
+        });
+      }, 100); // Small delay to ensure stop is completed
     }
   };
+  
 
   const increaseSpeed = () => {
     setSpeed((prevSpeed) => (prevSpeed < 2.0 ? prevSpeed + 0.25 : 1.0));

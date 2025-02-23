@@ -1,226 +1,150 @@
-// import React, { useState, useEffect, useRef } from "react";
-// import {
-//   StyleSheet,
-//     Text,
-//     View,
-//   Button,
-//   TouchableOpacity,
-// } from "react-native";
-// import { scanPhoto, getCurrentUser } from '../../lib/appwrite';
-// import { CameraView, Camera, useCameraPermissions  } from 'expo-camera';
-// import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-// const CameraPreview = () => {
-//     const cameraRef = useRef(null);
-//     const [permission, requestPermission] = useCameraPermissions();
-//     const [uploading, setUploading] = useState(false);
-//   const [user, setUser] = useState(null);
-  
-    
-//     if (!permission?.granted) {
-//     return (
-//       <View style={styles.permissionContainer}>
-//         <Text>Camera permission required</Text>
-//         <Button title="Grant Permission" onPress={requestPermission} />
-//       </View>
-//     );
-//   }
-// const handleScan = async () => {
-//     if (!cameraRef.current) return;
-    
-//     try {
-//       const result = await scanPhoto(getCurrentUser.$id);
-//         Alert.alert("Success", "Text extracted and saved!");
-//         return result;
-//     } catch (error) {
-//       Alert.alert("Error", error.message);
-//     }
-//   };
-    
-    
-//   return (
-//     <CameraView
-//       ref={cameraRef}
-//       style={StyleSheet.absoluteFill}
-//       facing="back"
-//       mode="picture"
-//     >
-//       {/* <TouchableOpacity  
-//         onPress={handleScan}
-//       > */}
-//         <View style={styles.scanButtonContainer}>
-//         <Button 
-//           title="Scan Document" 
-//           onPress={() => handleScan} 
-//         />
-//       </View>
-        
-//       {/* </TouchableOpacity> */}
-//     </CameraView>
-//   );
-// };
-// export default CameraPreview
+import React, { useState, useRef } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Platform,
+} from "react-native";
+import { scanPhoto, getCurrentUser } from '../../lib/appwrite';
+import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera';
+import MlkitOcr from 'react-native-mlkit-ocr';
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-// const styles = StyleSheet.create({
-    
-// })
-
-import React, { useRef, useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { MaterialIcons } from '@expo/vector-icons';
-
-const CameraPreviews = ({ onScanComplete }) => {
+const CameraPreview = () => {
   const cameraRef = useRef(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(false);
-  const linePosition = new Animated.Value(0);
+  const [uploadingToServer, setUploadingToServer] = useState(false);
 
-  useEffect(() => {
-    if (scanning) {
-      startAnimation();
-    }
-  }, [scanning]);
-
-  const startAnimation = () => {
-    linePosition.setValue(0);
-    Animated.loop(
-      Animated.timing(linePosition, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
-  };
-
-  // const handleScan = async () => {
-  //   if (!permission?.granted) {
-  //     await requestPermission();
-  //     return;
-  //   }
-
-  //   if (cameraRef.current) {
-  //     setScanning(true);
-  //     try {
-  //       const photo = await cameraRef.current.takePictureAsync();
-  //       const result = await scanPhoto(photo.uri);
-  //       Alert.alert("Success", "Text extracted and saved!");
-  //       return result;
-  //     } catch (error) {
-  //       Alert.alert("Error", error.message);
-  //     } finally {
-  //       setScanning(false);
-  //     }
-  //   }
-  // };
-
-const handleScan = async () => {
-    if (!permission?.granted) {
-      await requestPermission();
-      return;
-    }
-
-    if (cameraRef.current) {
-      setScanning(true);
-      try {
-        const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.8,
-          base64: false,
-        });
-
-        // Process image through pipeline
-        const processedImage = await ImageManipulator.manipulateAsync(
-          photo.uri,
-          [{ resize: { width: 1200 } }],
-          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-        );
-
-        // Extract text
-        const extractionResult = await recognizeText({
-          imagePath: processedImage.uri,
-          detectType: 'text',
-          language: 'eng',
-        });
-
-        // Handle extraction result
-        if (extractionResult && extractionResult.length > 0) {
-          const combinedText = extractionResult
-            .map(item => item.text)
-            .join('\n')
-            .replace(/[^\w\s.,!?\-@#$%^&*()]/g, '')
-            .replace(/\n{3,}/g, '\n\n')
-            .trim();
-          
-          onScanComplete(combinedText);
-          Alert.alert("Success", "Text extracted successfully!");
-        }
-      } catch (error) {
-        Alert.alert("Error", error.message);
-      } finally {
-        setScanning(false);
-      }
-    }
-  };
-
-  if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted) {
+  if (!permission?.granted) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>Camera permission required</Text>
-        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+        <TouchableOpacity 
+          style={styles.permissionButton} 
+          onPress={requestPermission}
+        >
           <Text style={styles.permissionButtonText}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const translateY = linePosition.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 300],
-  });
+  const processImage = async (uri) => {
+    try {
+      // Process with MLKit OCR
+      const result = await MlkitOcr.detectFromUri(uri);
+      
+      // Extract text from OCR result
+      const extractedText = result
+        .map(block => block.text)
+        .join('\n');
+      
+      return extractedText;
+    } catch (error) {
+      console.error('OCR Error:', error);
+      throw new Error('Failed to extract text from image');
+    }
+  };
+
+  const handleCapture = async () => {
+    if (!cameraRef.current || scanning) return;
+
+    try {
+      setScanning(true);
+      
+      // Capture photo
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 1,
+        base64: false,
+      });
+
+      // Process with OCR
+      const extractedText = await processImage(photo.uri);
+
+      // Upload to server
+      setUploadingToServer(true);
+      await scanPhoto(getCurrentUser.$id, {
+        imageUri: photo.uri,
+        extractedText: extractedText,
+      });
+
+      Alert.alert(
+        "Success",
+        "Text has been extracted and saved successfully!",
+        [{ text: "OK" }]
+      );
+
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error.message || "Failed to process image",
+        [{ text: "OK" }]
+      );
+    } finally {
+      setScanning(false);
+      setUploadingToServer(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <CameraView
         ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-        facing="back"
-        mode="picture"
+        style={styles.camera}
+        // type={CameraType.back}
+        // facing={CameraType.back}
+        ratio="4:3"
       >
+        {/* Overlay for better document alignment */}
         <View style={styles.overlay}>
-          <View style={styles.scanFrame}>
-            <Animated.View style={[styles.scanLine, { transform: [{ translateY }] }]} />
-            <View style={styles.cornerTopLeft} />
-            <View style={styles.cornerTopRight} />
-            <View style={styles.cornerBottomLeft} />
-            <View style={styles.cornerBottomRight} />
+          <View style={styles.scanFrame} />
+        </View>
+
+        {/* Scanning indicator */}
+        {scanning && (
+          <View style={styles.scanningOverlay}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+            <Text style={styles.scanningText}>
+              {uploadingToServer ? 'Uploading...' : 'Extracting text...'}
+            </Text>
           </View>
-                  <View style={styles.captureButtonBox}>
-                 
-          {/* <TouchableOpacity 
-            style={styles.captureButton}
-            onPress={handleScan}
+        )}
+
+        {/* Capture button */}
+        <View style={styles.controls}>
+          <TouchableOpacity 
+            style={[
+              styles.captureButton,
+              scanning && styles.captureButtonDisabled
+            ]}
+            onPress={handleCapture}
             disabled={scanning}
           >
             <View style={styles.innerCircle}>
-              {scanning && <View style={styles.scanningIndicator} />}
+              {scanning ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <MaterialIcons name="camera" size={24} color="#000" />
+              )}
             </View>
-            </TouchableOpacity> */}
-            </View>
+          </TouchableOpacity>
         </View>
       </CameraView>
     </View>
   );
 };
 
-export default CameraPreviews;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
+    backgroundColor: '#000',
+  },
+  camera: {
+    flex: 1,
   },
   overlay: {
     flex: 1,
@@ -229,110 +153,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scanFrame: {
-    width: 300,
-    height: 300,
+    width: '80%',
+    height: '60%',
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.5)',
-    backgroundColor: 'transparent',
-    position: 'relative',
+    borderColor: '#FFFFFF',
+    borderRadius: 10,
   },
-  scanLine: {
-    height: 2,
-    backgroundColor: '#00ff00',
-    width: '100%',
+  controls: {
     position: 'absolute',
-  },
-  cornerTopLeft: {
-    position: 'absolute',
-    top: -2,
-    left: -2,
-    width: 30,
-    height: 30,
-    borderLeftWidth: 4,
-    borderTopWidth: 4,
-    borderColor: '#00ff00',
-  },
-  cornerTopRight: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 30,
-    height: 30,
-    borderRightWidth: 4,
-    borderTopWidth: 4,
-    borderColor: '#00ff00',
-  },
-  cornerBottomLeft: {
-    position: 'absolute',
-    bottom: -2,
-    left: -2,
-    width: 30,
-    height: 30,
-    borderLeftWidth: 4,
-    borderBottomWidth: 4,
-    borderColor: '#00ff00',
-  },
-  cornerBottomRight: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 30,
-    height: 30,
-    borderRightWidth: 4,
-    borderBottomWidth: 4,
-    borderColor: '#00ff00',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: 30,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   captureButton: {
-    // position: 'absolute',
-    //  bottom: 25,
-    width: 60,
-    height: 60,
-    borderRadius: 40,
-    backgroundColor: 'transparent',
-    borderWidth: 4,
-    borderColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    },
-  //   captureButtonBox: {
-  //     width: '100%',
-  //   height: 100,
-  //       backgroundColor: '#000',
-  //     position: 'absolute',
-  //     bottom: 0,
-  // },
-  innerCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 30,
-    backgroundColor: 'white',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scanningIndicator: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255,0,0,0.3)',
+  captureButtonDisabled: {
+    opacity: 0.5,
+  },
+  innerCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  scanningOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanningText: {
+    color: '#FFFFFF',
+    marginTop: 10,
+    fontSize: 16,
   },
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   permissionText: {
-    fontSize: 18,
+    fontSize: 16,
     marginBottom: 20,
   },
   permissionButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#3273F6',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
   },
   permissionButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 16,
   },
 });
 
+export default CameraPreview;
