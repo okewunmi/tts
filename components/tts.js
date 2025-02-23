@@ -1,6 +1,4 @@
 
-
-// export default Card;
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -12,6 +10,14 @@ import { router } from "expo-router";
 const Card = ({ text, onBoundary }) => {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(0.8);
+
+  // const getAvailableVoices = async () => {
+  //   const voices = await Speech.getAvailableVoicesAsync();
+  //   console.log("Available voices:", voices);
+  // };
+  // useEffect(() => {
+  //   getAvailableVoices();
+  // }, []);
 
   const speak = () => {
     if (!text) return;
