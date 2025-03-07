@@ -1,3 +1,10 @@
 {
-  "urlRandomness": "3fVkstY"
+  "urlRandomness": "3fVkstY",
+  "dev": true,
+  "minify": false,
+  "https": false,
+  "scheme": "com.okewunmi.tts",
+  "hostType": "tunnel",
+  "lanType": "ip",
+  "devClient": false
 }

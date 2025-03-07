@@ -37,16 +37,12 @@ const CameraPreview = () => {
     try {
       // Process with MLKit OCR
       const result = await MlkitOcr.detectFromUri(uri);
-      
+  
       // Extract text from OCR result
-      const extractedText = result
-        .map(block => block.text)
-        .join('\n');
-      
-      return extractedText;
+      return result.map((block) => block.text).join("\n").trim();
     } catch (error) {
-      console.error('OCR Error:', error);
-      throw new Error('Failed to extract text from image');
+      console.error("OCR Error:", error);
+      throw new Error("Failed to extract text from image");
     }
   };
 
@@ -54,39 +50,29 @@ const CameraPreview = () => {
     if (!cameraRef.current || scanning) return;
 
     try {
-      setScanning(true);
-      
       // Capture photo
       const photo = await cameraRef.current.takePictureAsync({
         quality: 1,
         base64: false,
       });
-
-      // Process with OCR
+  
+      if (!photo?.uri) {
+        throw new Error("Failed to capture image");
+      }
+  
+      // Extract text from the captured image
       const extractedText = await processImage(photo.uri);
-
-      // Upload to server
-      setUploadingToServer(true);
-      await scanPhoto(getCurrentUser.$id, {
-        imageUri: photo.uri,
-        extractedText: extractedText,
-      });
-
-      Alert.alert(
-        "Success",
-        "Text has been extracted and saved successfully!",
-        [{ text: "OK" }]
-      );
-
+  
+      // Upload extracted text to server
+      await scanPhoto(photo.uri, extractedText);
+  
+      Alert.alert("Success", "Text has been extracted and saved successfully!", [
+        { text: "OK" },
+      ]);
     } catch (error) {
-      Alert.alert(
-        "Error",
-        error.message || "Failed to process image",
-        [{ text: "OK" }]
-      );
-    } finally {
-      setScanning(false);
-      setUploadingToServer(false);
+      Alert.alert("Error", error.message || "Failed to process image", [
+        { text: "OK" },
+      ]);
     }
   };
 

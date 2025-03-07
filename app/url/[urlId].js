@@ -291,7 +291,9 @@ const FileView = () => {
   useEffect(() => {
     fetchDocument();
   }, [urlId]);
+  
 
+  
   const extractTextContent = (html) => {
     try {
       // Remove scripts
@@ -342,6 +344,7 @@ const FileView = () => {
 
       setDocument(doc);
       setExtractedText(textContent);
+  
     } catch (error) {
       console.error("Error loading document:", error);
     } finally {
