@@ -66,9 +66,9 @@ const FileView = () => {
         </View>
 
         <View>
-          <Text style={styles.headerTitle}>
+          {/* <Text style={styles.headerTitle}>
             {document?.createdAt || "null"}
-          </Text>
+          </Text> */}
           <Text style={styles.headerTitle}>{document?.extractedText}</Text>
         </View>
       </ScrollView>

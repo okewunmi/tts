@@ -32,7 +32,8 @@ import {
   createUrl,
   getAllUserContent,
   extractFileText,
-  chunkedUploadFile
+  chunkedUploadFile,
+  extractTextFromFile
 } from "../../lib/appwrite";
 import Card from "../../components/Card";
 import CardTxt from "../../components/CardTxt";
@@ -145,6 +146,84 @@ const home = () => {
     setRefreshing(false);
   };
 
+// const handleFileUpload = async () => {
+//   try {
+//     setIsSubmitting(true);
+//     setUploading(true);
+
+//     // Allowed file extensions
+//     const allowedExtensions = ["pdf", "doc", "docx"];
+
+//     // Show file picker
+//     const result = await DocumentPicker.getDocumentAsync({
+//       type: [
+//         "application/pdf",
+//         "application/msword",
+//         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+//       ],
+//       copyToCacheDirectory: true,
+//     });
+
+//     if (!result.assets || result.assets.length === 0) {
+//       console.log("No file selected");
+//       return;
+//     }
+
+//     const file = result.assets[0];
+//     console.log("Selected file:", file.name);
+//     console.log("File MIME Type:", file?.mimeType);
+
+//     // Extract file extension
+//     const fileExtension = file.name.split(".").pop().toLowerCase();
+
+//     // Validate file extension
+//     if (!allowedExtensions.includes(fileExtension)) {
+//       throw new Error(`File extension not allowed: .${fileExtension}`);
+//     }
+
+//     // Prepare file data for upload
+//     const fileData = {
+//       name: file.name,
+//       uri: file.uri,
+//       type: file.mimeType,
+//       size: file.size,
+//     };
+
+//     // Upload file
+//     const uploadedFile = await uploadFile(fileData);
+//     console.log("Upload response:", uploadedFile);
+
+//     if (!uploadedFile || !uploadedFile.fileUrl) {
+//       throw new Error("File upload failed: No file URL returned");
+//     }
+
+//     console.log("Uploaded File URL:", uploadedFile.fileUrl);
+
+//     // Create document record in Appwrite Database
+//     await createDocument(file, user.$id, uploadedFile.fileUrl);
+
+//     Alert.alert("Success", "Document uploaded successfully");
+
+//     router.replace("/library");
+//   } catch (error) {
+//     console.error("Upload error:", error);
+//     let errorMessage = "Document upload failed";
+
+//     if (error.message.includes("File extension not allowed")) {
+//       errorMessage = "This file type is not supported. Please upload a PDF, DOC, or DOCX file.";
+//     } else if (error.message.includes("network request failed")) {
+//       errorMessage = "Network issue. Please check your connection and try again.";
+//     } else if (error.message.includes("timeout")) {
+//       errorMessage = "Upload timed out. File might be too large.";
+//     }
+
+//     Alert.alert("Error", errorMessage);
+//   } finally {
+//     setUploading(false);
+//     setIsSubmitting(false);
+//   }
+// };
+
 const handleFileUpload = async () => {
   try {
     setIsSubmitting(true);
@@ -188,20 +267,20 @@ const handleFileUpload = async () => {
       size: file.size,
     };
 
-    // Upload file
-    const uploadedFile = await uploadFile(fileData);
-    console.log("Upload response:", uploadedFile);
-
-    if (!uploadedFile || !uploadedFile.fileUrl) {
+    // Upload and extract text in one operation
+    console.log("Starting file upload and text extraction...");
+    const { extractedText, fileUrl } = await extractTextFromFile(fileData);
+    console.log("File uploaded and text extracted successfully");
+    
+    if (!fileUrl) {
       throw new Error("File upload failed: No file URL returned");
     }
 
-    console.log("Uploaded File URL:", uploadedFile.fileUrl);
+    // Create document record in Appwrite Database with extracted text
+    await createDocument(file, user.$id, fileUrl, extractedText);
+    console.log("Document created with extracted text");
 
-    // Create document record in Appwrite Database
-    await createDocument(file, user.$id, uploadedFile.fileUrl);
-
-    Alert.alert("Success", "Document uploaded successfully");
+    Alert.alert("Success", "Document uploaded and text extracted successfully");
 
     router.replace("/library");
   } catch (error) {
@@ -214,6 +293,8 @@ const handleFileUpload = async () => {
       errorMessage = "Network issue. Please check your connection and try again.";
     } else if (error.message.includes("timeout")) {
       errorMessage = "Upload timed out. File might be too large.";
+    } else if (error.message.includes("text extraction")) {
+      errorMessage = "Failed to extract text: " + error.message;
     }
 
     Alert.alert("Error", errorMessage);
@@ -222,64 +303,6 @@ const handleFileUpload = async () => {
     setIsSubmitting(false);
   }
 };
-
-// const handleFileUpload = async () => {
-//   try {
-//     setIsSubmitting(true);
-//     setUploading(true);
-
-//     const allowedExtensions = ["pdf", "doc", "docx"];
-//     const result = await DocumentPicker.getDocumentAsync({
-//       type: [
-//         "application/pdf",
-//         "application/msword",
-//         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-//       ],
-//       copyToCacheDirectory: true,
-//     });
-
-//     if (!result.assets || result.assets.length === 0) {
-//       console.log("No file selected");
-//       return;
-//     }
-
-//     const file = result.assets[0];
-//     const fileExtension = file.name.split(".").pop().toLowerCase();
-
-//     if (!allowedExtensions.includes(fileExtension)) {
-//       throw new Error(`File extension not allowed: .${fileExtension}`);
-//     }
-
-//     const fileData = {
-//       name: file.name,
-//       uri: file.uri,
-//       type: file.mimeType,
-//       size: file.size,
-//     };
-
-//     // Extract text
-//     const extractedText = await extractTextFromFile(file);
-
-//     // Upload file to Appwrite
-//     const uploadedFile = await uploadFile(fileData);
-//     if (!uploadedFile || !uploadedFile.fileUrl) {
-//       throw new Error("File upload failed: No file URL returned");
-//     }
-
-//     // Create document in Appwrite with extracted text
-//     await createDocument(file, user.$id, uploadedFile.fileUrl, extractedText);
-
-//     Alert.alert("Success", "Document uploaded successfully");
-//     router.replace("/library");
-//   } catch (error) {
-//     console.error("Upload error:", error);
-//     Alert.alert("Error", error.message || "Document upload failed");
-//   } finally {
-//     setUploading(false);
-//     setIsSubmitting(false);
-//   }
-// };
-
   const handleUrl = async () => {
     // console.log("clicked!!");
     setShowModal(true);
