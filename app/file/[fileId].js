@@ -72,7 +72,7 @@ const FileView = () => {
           <Text style={styles.headerTitle}>{document?.extractedText}</Text>
         </View>
       </ScrollView>
-      <TTSFuction />
+      <TTSFuction text={document?.extractedText || "Untitled"} />
     </SafeAreaView>
   );
 };

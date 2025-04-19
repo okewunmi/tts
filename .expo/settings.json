@@ -3,8 +3,8 @@
   "dev": true,
   "minify": false,
   "https": false,
-  "scheme": "com.okewunmi.tts",
-  "hostType": "tunnel",
+  "hostType": "lan",
   "lanType": "ip",
+  "scheme": "com.okewunmi.tts",
   "devClient": false
 }
