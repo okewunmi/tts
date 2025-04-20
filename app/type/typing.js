@@ -82,6 +82,7 @@ const FileView = () => {
     </SafeAreaView>
   );
 };
+export default FileView;
 
 const styles = StyleSheet.create({
   safe: {
@@ -122,4 +123,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FileView;

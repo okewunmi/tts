@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   ActivityIndicator,
   ScrollView,
 } from "react-native";
@@ -15,7 +14,6 @@ import { getDocumentById } from "../../lib/appwrite";
 const FileView = () => {
   const { fileId } = useLocalSearchParams();
   const [document, setDocument] = useState(null);
-  const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,12 +24,6 @@ const FileView = () => {
     try {
       const doc = await getDocumentById(fileId);
       setDocument(doc);
-
-      // Extract file ID from the fileUrl
-      // const storedFileId = doc.fileUrl.split('/').pop();
-      // Get preview URL
-      // const previewUrl = await getFilePreview(storedFileId);
-      // setPdfUrl(previewUrl);
     } catch (error) {
       console.error("Error loading document:", error);
       Alert.alert("Error", "Failed to load document");
