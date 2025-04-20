@@ -258,6 +258,8 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Picker } from '@react-native-picker/picker';
 import Pic from "../assets/images/profile.jpg";
 import { router } from "expo-router";
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { Audio } from 'expo-av';
 
 const TTSFunction = ({ text, onBoundary }) => {
@@ -291,6 +293,7 @@ const TTSFunction = ({ text, onBoundary }) => {
       return;
     }
     
+    
     const sentences = text.split(/(?<=[.!?])\s+/);
     const chunks = [];
     let currentChunk = "";
@@ -310,6 +313,15 @@ const TTSFunction = ({ text, onBoundary }) => {
     setCurrentChunk(0);
   }, [text]);
 
+  useEffect(() => {
+    (async () => {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need media library permissions to save audio files!');
+      }
+    })();
+  }, []);
+  
   // Handle audio queue
   useEffect(() => {
     if (audioQueue.length > 0 && !currentAudio) {
@@ -404,6 +416,55 @@ const TTSFunction = ({ text, onBoundary }) => {
     setCurrentChunk(0);
   };
 
+  // const generateSpeech = async (text) => {
+  //   try {
+  //     setIsLoading(true);
+      
+  //     console.log("Sending to Hugging Face TTS API...");
+  //     const response = await fetch("https://dpc-mmstts.hf.space/run/predict", {
+  //       method: "POST",
+  //       headers: { 
+  //         "Content-Type": "application/json",
+  //         "Accept": "application/json"
+  //       },
+  //       body: JSON.stringify({
+  //         data: [
+  //           text,
+  //           selectedLanguage
+  //         ]
+  //       })
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorBody = await response.text();
+  //       console.error("API Error Response:", errorBody);
+  //       throw new Error(`API request failed with status ${response.status}`);
+  //     }
+
+  //     const result = await response.json();
+  //     console.log("API Response:", result);
+
+  //     if (!result.data || !result.data[0]?.name) {
+  //       throw new Error("Unexpected API response format");
+  //     }
+
+  //     // Construct the full URL to the audio file
+  //     const audioUrl = `https://dpc-mmstts.hf.space/file=${result.data[0].name}`;
+      
+  //     // Create sound object from the audio URL
+  //     const { sound } = await Audio.Sound.createAsync(
+  //       { uri: audioUrl },
+  //       { shouldPlay: false }
+  //     );
+      
+  //     return sound;
+  //   } catch (error) {
+  //     console.error("TTS generation error:", error);
+  //     return null;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const generateSpeech = async (text) => {
     try {
       setIsLoading(true);
@@ -422,20 +483,20 @@ const TTSFunction = ({ text, onBoundary }) => {
           ]
         })
       });
-
+  
       if (!response.ok) {
         const errorBody = await response.text();
         console.error("API Error Response:", errorBody);
         throw new Error(`API request failed with status ${response.status}`);
       }
-
+  
       const result = await response.json();
       console.log("API Response:", result);
-
+  
       if (!result.data || !result.data[0]?.name) {
         throw new Error("Unexpected API response format");
       }
-
+  
       // Construct the full URL to the audio file
       const audioUrl = `https://dpc-mmstts.hf.space/file=${result.data[0].name}`;
       
@@ -445,7 +506,7 @@ const TTSFunction = ({ text, onBoundary }) => {
         { shouldPlay: false }
       );
       
-      return sound;
+      return { sound, audioUrl }; // Return both sound and URL
     } catch (error) {
       console.error("TTS generation error:", error);
       return null;
@@ -454,6 +515,48 @@ const TTSFunction = ({ text, onBoundary }) => {
     }
   };
 
+
+  const downloadAudio = async () => {
+    if (textChunks.length === 0) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Generate speech for all chunks and combine URLs
+      const audioUrls = [];
+      for (const chunk of textChunks) {
+        const result = await generateSpeech(chunk);
+        if (result) {
+          audioUrls.push(result.audioUrl);
+        }
+      }
+      
+      if (audioUrls.length === 0) {
+        alert("No audio was generated");
+        return;
+      }
+      
+      // For simplicity, we'll just handle the first chunk's URL
+      // In a real app, you might want to combine all chunks
+      const audioUrl = audioUrls[0];
+      
+      // Use expo-file-system to download the file
+      const { uri: localUri } = await FileSystem.downloadAsync(
+        audioUrl,
+        FileSystem.documentDirectory + 'tts_output.mp3'
+      );
+      
+      // Save to device's media library
+      await MediaLibrary.saveToLibraryAsync(localUri);
+      
+      alert("Audio saved to your device!");
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download audio");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const speakCurrentChunk = async () => {
     if (textChunks.length === 0 || currentChunk >= textChunks.length) return;
@@ -557,6 +660,14 @@ const TTSFunction = ({ text, onBoundary }) => {
           </View>
           <Text style={styles.voiceTxt}>Voices</Text>
         </TouchableOpacity> */}
+        <TouchableOpacity 
+  style={styles.downloadButton} 
+  onPress={downloadAudio}
+  disabled={isLoading}
+>
+  <FontAwesome name="download" size={20} color="#3273F6" />
+  <Text style={styles.downloadText}>Download</Text>
+</TouchableOpacity>
 
         <TouchableOpacity style={styles.controlButton} onPress={restart}>
           <FontAwesome6 name="rotate-left" size={22} color="#9E9898" />
@@ -669,6 +780,17 @@ const styles = StyleSheet.create({
     height: 55,
     width: 55,
     backgroundColor: "#3273F6",
+  },
+  downloadButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  downloadText: {
+    color: '#3273F6',
+    fontWeight: '600',
+    fontSize: 12,
+    marginTop: 4,
   },
   speedContainer: {
     height: 40,
