@@ -269,7 +269,7 @@ const TTSFunction = ({ text, onBoundary }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [audioQueue, setAudioQueue] = useState([]);
   const [currentAudio, setCurrentAudio] = useState(null);
-  const [playbackProgress, setPlaybackProgress] = useState(0);
+  
   const MAX_CHUNK_SIZE = 500;
 
   // Full language list from the API
@@ -284,31 +284,32 @@ const TTSFunction = ({ text, onBoundary }) => {
   );
 
 
- // Split text into chunks
-  useEffect(() => {
-    if (!text) {
-      setTextChunks([]);
-      return;
+// Split text into chunks
+useEffect(() => {
+  if (!text) {
+    setTextChunks([]);
+    return;
+  }
+  
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const chunks = [];
+  let currentChunk = "";
+  
+  sentences.forEach(sentence => {
+    if (currentChunk.length + sentence.length > MAX_CHUNK_SIZE) {
+      if (currentChunk.length > 0) chunks.push(currentChunk);
+      currentChunk = sentence;
+    } else {
+      currentChunk += (currentChunk ? " " : "") + sentence;
     }
-    
-    const sentences = text.split(/(?<=[.!?])\s+/);
-    const chunks = [];
-    let currentChunk = "";
-    
-    sentences.forEach(sentence => {
-      if (currentChunk.length + sentence.length > MAX_CHUNK_SIZE) {
-        if (currentChunk.length > 0) chunks.push(currentChunk);
-        currentChunk = sentence;
-      } else {
-        currentChunk += (currentChunk ? " " : "") + sentence;
-      }
-    });
-    
-    if (currentChunk.length > 0) chunks.push(currentChunk);
-    
-    setTextChunks(chunks);
-    setCurrentChunk(0);
-  }, [text]);
+  });
+  
+  if (currentChunk.length > 0) chunks.push(currentChunk);
+  
+  setTextChunks(chunks);
+  setCurrentChunk(0);
+}, [text]);
+
 
   // Handle audio queue
   useEffect(() => {
@@ -339,6 +340,12 @@ const TTSFunction = ({ text, onBoundary }) => {
  
   useEffect(() => {
     return () => {
+      stopPlayback();
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
       const cleanup = async () => {
         await stopPlayback();
       };
@@ -346,47 +353,64 @@ const TTSFunction = ({ text, onBoundary }) => {
     };
   }, []);
   
- // Update the playNextAudio function
-const playNextAudio = async () => {
-  if (audioQueue.length === 0) {
-    setCurrentAudio(null);
-    setPlaying(false);
-    return;
-  }
+  // const playNextAudio = async () => {
+  //   if (audioQueue.length === 0) {
+  //     setCurrentAudio(null);
+  //     setPlaying(false);
+  //     return;
+  //   }
 
-  const nextAudio = audioQueue[0];
-  setCurrentAudio(nextAudio);
-  setAudioQueue(prev => prev.slice(1));
+  //   const nextAudio = audioQueue[0];
+  //   setCurrentAudio(nextAudio);
+  //   setAudioQueue(prev => prev.slice(1));
 
-  try {
-    // First, set the playback status update handler
-    await nextAudio.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
-        // Unload the current audio before moving to the next
-        nextAudio.unloadAsync().then(() => {
-          if (currentChunk < textChunks.length - 1) {
-            setCurrentChunk(prev => prev + 1);
-            speakCurrentChunk();
-          } else {
-            stopPlayback();
-          }
-        }).catch(error => {
-          console.error("Error unloading audio:", error);
-          handlePlaybackError(error);
-        });
-      }
-    });
+  //   try {
+  //     await nextAudio.replayAsync();
+  //     await nextAudio.setOnPlaybackStatusUpdate((status) => {
+  //       if (status.didJustFinish) {
+  //         playNextAudio();
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error("Audio playback error:", error);
+  //     playNextAudio();
+  //   }
+  // };
 
-    // Then play the audio
-    await nextAudio.playAsync();
-  } catch (error) {
-    console.error("Audio playback error:", error);
-    handlePlaybackError(error);
-  }
-};
-
-
-
+  const playNextAudio = async () => {
+    if (audioQueue.length === 0) {
+      setCurrentAudio(null);
+      setPlaying(false);
+      return;
+    }
+  
+    const nextAudio = audioQueue[0];
+    setCurrentAudio(nextAudio);
+    setAudioQueue(prev => prev.slice(1));
+  
+    try {
+      // First set the status handler
+      await nextAudio.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          nextAudio.unloadAsync().then(() => {
+            if (currentChunk < textChunks.length - 1) {
+              setCurrentChunk(prev => prev + 1);
+              speakCurrentChunk();
+            } else {
+              stopPlayback();
+            }
+          });
+        }
+      });
+  
+      // Then play the audio
+      await nextAudio.playAsync();
+    } catch (error) {
+      console.error("Audio playback error:", error);
+      handlePlaybackError(error);
+    }
+  };
+  
   const handlePlaybackError = (error) => {
     console.error("Playback error:", error);
     if (currentChunk < textChunks.length - 1) {
@@ -397,120 +421,97 @@ const playNextAudio = async () => {
     }
   };
 
-  // Update the stopPlayback function
-const stopPlayback = async () => {
-  try {
-    // Stop and unload current audio if it exists
-    if (currentAudio) {
-      await currentAudio.stopAsync();
-      await currentAudio.unloadAsync();
-    }
-    
-    // Unload all queued audio
-    for (const audio of audioQueue) {
-      try {
-        await audio.unloadAsync();
-      } catch (error) {
-        console.error("Error unloading queued audio:", error);
-      }
-    }
-  } catch (error) {
-    console.error("Error stopping playback:", error);
-  } finally {
-    setAudioQueue([]);
-    setPlaying(false);
-    setCurrentChunk(0);
-    setCurrentAudio(null);
-  }
-};
 
-const generateSpeech = async (text) => {
-  const controller = new AbortController();
-  try {
-    setIsLoading(true);
-    
-    console.log("Sending to Hugging Face TTS API...");
-    const response = await fetch("https://dpc-mmstts.hf.space/run/predict", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        data: [
-          text,
-          selectedLanguage
-        ]
-      }),
-      signal: controller.signal
-    });
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-
-    const result = await response.json();
-    
-    if (!result.data || !result.data[0]?.name) {
-      throw new Error("Unexpected API response format");
-    }
-
-    const audioUrl = `https://dpc-mmstts.hf.space/file=${result.data[0].name}`;
-    
-    // Create a timeout promise that aborts the fetch if it takes too long
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        controller.abort();
-        reject(new Error("Audio loading timeout after 10 seconds"));
-      }, 10000);
-    });
-
-    // Load audio with timeout
-    const { sound } = await Promise.race([
-      Audio.Sound.createAsync({ uri: audioUrl }, { shouldPlay: false }),
-      timeoutPromise
-    ]);
-    
-    return sound;
-  } catch (error) {
-    console.error("TTS generation error:", error);
-    return null;
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  useEffect(() => {
-    const updatePlaybackRate = async () => {
+  const stopPlayback = async () => {
+    try {
+      // Stop and unload current audio if it exists
       if (currentAudio) {
+        await currentAudio.stopAsync();
+        await currentAudio.unloadAsync();
+        setCurrentAudio(null);
+      }
+      
+      // Unload all queued audio
+      for (const audio of audioQueue) {
         try {
-          await currentAudio.setRateAsync(speed, true);
+          await audio.unloadAsync();
         } catch (error) {
-          console.error("Error setting playback rate:", error);
+          console.error("Error unloading queued audio:", error);
         }
       }
-    };
+    } catch (error) {
+      console.error("Error stopping playback:", error);
+    } finally {
+      setAudioQueue([]);
+      setPlaying(false);
+      setCurrentChunk(0);
+    }
+  };
+
+  const generateSpeech = async (text) => {
+    try {
+      setIsLoading(true);
+      
+      console.log("Sending to Hugging Face TTS API...");
+      const response = await fetch("https://dpc-mmstts.hf.space/run/predict", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          data: [
+            text,
+            selectedLanguage
+          ]
+        })
+      });
+  
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error("API Error Response:", errorBody);
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+  
+      const result = await response.json();
+      console.log("API Response:", result);
+  
+      if (!result.data || !result.data[0]?.name) {
+        throw new Error("Unexpected API response format");
+      }
+  
+      // Construct the full URL to the audio file
+      const audioUrl = `https://dpc-mmstts.hf.space/file=${result.data[0].name}`;
+      
+      // Create sound object from the audio URL
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: audioUrl },
+        { shouldPlay: false }
+      );
+      
+      return sound;
+    } catch (error) {
+      console.error("TTS generation error:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const speakCurrentChunk = async () => {
+    if (textChunks.length === 0 || currentChunk >= textChunks.length) return;
     
-    updatePlaybackRate();
-  }, [speed, currentAudio]);
-
-
-
-
-  // Update the speakCurrentChunk function
-const speakCurrentChunk = async () => {
-  if (textChunks.length === 0 || currentChunk >= textChunks.length) return;
-  
-  const chunk = textChunks[currentChunk];
-  const audio = await generateSpeech(chunk);
-  
-  if (audio) {
-    setAudioQueue(prev => [...prev, audio]);
-  } else {
-    handleChunkFinished();
-  }
-};
-
+    const chunk = textChunks[currentChunk];
+    const audio = await generateSpeech(chunk);
+    
+    if (audio) {
+      setAudioQueue(prev => [...prev, audio]);
+    } else {
+      handleChunkFinished();
+    }
+  };
 
   const handleChunkFinished = () => {
     if (currentChunk < textChunks.length - 1) {
@@ -522,45 +523,50 @@ const speakCurrentChunk = async () => {
     }
   };
 
- // Update the speak function
-const speak = async () => {
-  if (textChunks.length === 0) return;
-  
-  if (playing) {
-    await stopPlayback();
-  } else {
-    // Clean up any existing audio first
-    await stopPlayback();
+  const speak = async () => {
+    if (textChunks.length === 0) return;
     
-    setPlaying(true);
-    setCurrentChunk(0);
-    await speakCurrentChunk();
-  }
-};
+    if (playing) {
+      // Stop all audio
+      if (currentAudio) {
+        await currentAudio.stopAsync();
+        await currentAudio.unloadAsync();
+        
+      }
+      setAudioQueue([]);
+      setPlaying(false);
+    } else {
+      setPlaying(true);
+      setCurrentChunk(0);
+      setAudioQueue([]); // Clear any previous queue
+      await speakCurrentChunk();
+    }
+  };
 
   const increaseSpeed = () => {
     setSpeed(prev => prev < 2.0 ? prev + 0.25 : 1.0);
   };
 
-  // Update the restart function
-const restart = async () => {
-  await stopPlayback();
-  if (playing) {
-    setPlaying(true);
-    await speakCurrentChunk();
-  }
-};
-
-  // Update the skipForward function
-const skipForward = async () => {
-  if (currentChunk < textChunks.length - 1) {
-    await stopPlayback();
-    setCurrentChunk(prev => prev + 1);
-    if (playing) {
-      await speakCurrentChunk();
+  const restart = async () => {
+    if (currentAudio) {
+      await currentAudio.stopAsync();
+      await currentAudio.unloadAsync();
     }
-  }
-};
+    setAudioQueue([]);
+    setCurrentChunk(0);
+    if (playing) speakCurrentChunk();
+  };
+
+  const skipForward = async () => {
+    if (currentChunk < textChunks.length - 1) {
+      if (currentAudio) {
+        await currentAudio.stopAsync();
+        await currentAudio.unloadAsync();
+      }
+      setCurrentChunk(prev => prev + 1);
+      if (playing) speakCurrentChunk();
+    }
+  };
 
   return (
     <View style={styles.container}>

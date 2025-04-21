@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.okewunmi.tts",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -51,6 +55,7 @@
       "eas": {
         "projectId": "9465643f-9bad-4f20-b33b-56c7b2d15ba5"
       }
-    }
+    },
+    "owner": "fourfive"
   }
 }
