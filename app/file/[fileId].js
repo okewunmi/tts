@@ -61,7 +61,7 @@ const FileView = () => {
           {/* <Text style={styles.headerTitle}>
             {document?.createdAt || "null"}
           </Text> */}
-          <Text style={styles.headerTitle}>{document?.extractedText}</Text>
+          <Text style={styles.txt}>{document?.extractedText}</Text>
         </View>
       </ScrollView>
       <TTSFuction text={document?.extractedText || "Untitled"} />
@@ -81,6 +81,19 @@ const styles = StyleSheet.create({
     marginTop: -25.2,
   },
   boxTxt: {},
+  headerTitle:{
+    textAlign: 'justify',
+    lineHeight: 25,
+    fontSize: 16,
+    fontWeight: '700'
+  },
+  txt:{
+    textAlign: 'justify',
+    lineHeight: 30,
+    fontSize: 14,
+    fontWeight: '500',
+ 
+      },
 });
 
 export default FileView;
