@@ -81,8 +81,6 @@ const CameraPreview = () => {
       <CameraView
         ref={cameraRef}
         style={styles.camera}
-        // type={CameraType.back}
-        // facing={CameraType.back}
         ratio="4:3"
       >
         {/* Overlay for better document alignment */}
@@ -91,14 +89,7 @@ const CameraPreview = () => {
         </View>
 
         {/* Scanning indicator */}
-        {scanning && (
-          <View style={styles.scanningOverlay}>
-            <ActivityIndicator size="large" color="#FFFFFF" />
-            <Text style={styles.scanningText}>
-              {uploadingToServer ? 'Uploading...' : 'Extracting text...'}
-            </Text>
-          </View>
-        )}
+        
 
         {/* Capture button */}
         <View style={styles.controls}>
@@ -127,23 +118,26 @@ const CameraPreview = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    // backgroundColor: '#000',
   },
   camera: {
     flex: 1,
+  
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    // backgroundColor: 'rgba(0,0,0,0.4)',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    width: '95%',
+    height: '100%',
   },
   scanFrame: {
-    width: '80%',
-    height: '60%',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    borderRadius: 10,
+    // width: '95%',
+    // height: '100%',
+    // borderWidth: 2,
+    // borderColor: '#FFFFFF',
+    // borderRadius: 10,
   },
   controls: {
     position: 'absolute',
@@ -154,7 +148,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgb(0, 0, 0)',
+    zIndex:9,
+     borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   captureButton: {
     width: 70,
@@ -163,6 +160,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex:500
   },
   captureButtonDisabled: {
     opacity: 0.5,
