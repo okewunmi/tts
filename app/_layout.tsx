@@ -165,7 +165,8 @@ const RootLayout = () => {
             options={{
               headerStyle: {
                 backgroundColor: "black",
-              }
+              },
+              headerTintColor: 'white',
             }}
           />
         </Stack>

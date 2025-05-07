@@ -336,7 +336,7 @@ const handleFileUpload = async () => {
               color="white"
               style={styles.icon2}
             />
-            <Text style={styles.iconTxt}>Scan Pages</Text>
+            <Text style={styles.iconTxt}>Scan Images</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.box}>

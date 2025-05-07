@@ -8,109 +8,26 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { scanPhoto, getCurrentUser } from '../../lib/appwrite';
-import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera';
-import MlkitOcr from 'react-native-mlkit-ocr';
+
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const CameraPreview = () => {
-  const cameraRef = useRef(null);
-  const [permission, requestPermission] = useCameraPermissions();
+  
   const [scanning, setScanning] = useState(false);
   const [uploadingToServer, setUploadingToServer] = useState(false);
 
-  if (!permission?.granted) {
-    return (
-      <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>Camera permission required</Text>
-        <TouchableOpacity 
-          style={styles.permissionButton} 
-          onPress={requestPermission}
-        >
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const processImage = async (uri) => {
-    try {
-      // Process with MLKit OCR
-      const result = await MlkitOcr.detectFromUri(uri);
   
-      // Extract text from OCR result
-      return result.map((block) => block.text).join("\n").trim();
-    } catch (error) {
-      console.error("OCR Error:", error);
-      throw new Error("Failed to extract text from image");
-    }
-  };
+  
 
   const handleCapture = async () => {
-    if (!cameraRef.current || scanning) return;
-
-    try {
-      // Capture photo
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 1,
-        base64: false,
-      });
-  
-      if (!photo?.uri) {
-        throw new Error("Failed to capture image");
-      }
-  
-      // Extract text from the captured image
-      const extractedText = await processImage(photo.uri);
-  
-      // Upload extracted text to server
-      await scanPhoto(photo.uri, extractedText);
-  
-      Alert.alert("Success", "Text has been extracted and saved successfully!", [
-        { text: "OK" },
-      ]);
-    } catch (error) {
-      Alert.alert("Error", error.message || "Failed to process image", [
-        { text: "OK" },
-      ]);
-    }
+    
   };
 
   return (
     <View style={styles.container}>
-      <CameraView
-        ref={cameraRef}
-        style={styles.camera}
-        ratio="4:3"
-      >
-        {/* Overlay for better document alignment */}
-        <View style={styles.overlay}>
-          <View style={styles.scanFrame} />
-        </View>
 
-        {/* Scanning indicator */}
-        
-
-        {/* Capture button */}
-        <View style={styles.controls}>
-          <TouchableOpacity 
-            style={[
-              styles.captureButton,
-              scanning && styles.captureButtonDisabled
-            ]}
-            onPress={handleCapture}
-            disabled={scanning}
-          >
-            <View style={styles.innerCircle}>
-              {scanning ? (
-                <ActivityIndicator size="small" color="#000" />
-              ) : (
-                <MaterialIcons name="camera" size={24} color="#000" />
-              )}
-            </View>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+      <View style={styles.bottom}></View>
+      
     </View>
   );
 };
@@ -118,7 +35,15 @@ const CameraPreview = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#000',
+    backgroundColor: 'rgba(0, 0, 0, 0.56)',
+   justifyContent: 'flex-end'
+  },
+  bottom:{
+    height: 100,
+    backgroundColor: 'rgb(5, 5, 5)',
+    borderColor: '#ececec',
+    borderTopWidth: 2
+  
   },
   camera: {
     flex: 1,

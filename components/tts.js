@@ -324,6 +324,24 @@ const TTSFunction = ({ text }) => {
     }
   };
 
+  //testing
+
+  // const preloadNextChunk = async () => {
+  //   const maxPreloadAhead = 2;
+  //   for (let i = 1; i <= maxPreloadAhead; i++) {
+  //     const nextIndex = currentIndex.current + i;
+  //     if (nextIndex < chunks.current.length && !chunkAudios.current[nextIndex]) {
+  //       try {
+  //         const audioUrl = await generateAudioFromText(chunks.current[nextIndex]);
+  //         chunkAudios.current[nextIndex] = audioUrl;
+  //       } catch (error) {
+  //         console.error(`Error preloading chunk ${nextIndex}:`, error);
+  //       }
+  //     }
+  //   }
+  // };
+  
+
   const playChunk = async () => {
     const index = currentIndex.current;
     if (index >= chunks.current.length) {
