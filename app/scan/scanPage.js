@@ -9,25 +9,40 @@ import {
   Platform,
 } from "react-native";
 
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 const CameraPreview = () => {
-  
+
   const [scanning, setScanning] = useState(false);
   const [uploadingToServer, setUploadingToServer] = useState(false);
 
-  
-  
+
+
 
   const handleCapture = async () => {
-    
+
   };
 
   return (
     <View style={styles.container}>
 
-      <View style={styles.bottom}></View>
-      
+      <View style={styles.bottom}>
+        <TouchableOpacity style={styles.select}>
+         <FontAwesome name="photo" size={26} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.snap}>
+          <View style={styles.small}></View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.BoxPick}>
+        
+        <View style={styles.pick}>
+          
+        </View>
+        <View style={styles.number}></View>
+        <View ><Text style={styles.PickTxt}>Continue</Text></View>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
@@ -35,19 +50,78 @@ const CameraPreview = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.56)',
-   justifyContent: 'flex-end'
+    justifyContent: 'flex-end'
   },
-  bottom:{
-    height: 100,
-    backgroundColor: 'rgb(5, 5, 5)',
-    borderColor: '#ececec',
-    borderTopWidth: 2
-  
+  bottom: {
+    height: 110,
+    backgroundColor: 'rgb(8, 7, 7)',
+    // borderColor: '#ececec',
+    // borderTopWidth: 2,
+    
+    flexDirection: 'row',
+    paddingHorizontal: 50,
+    alignItems: 'center',
+    paddingVertical: 15,
+    justifyContent: 'space-between',
+    // borderTopLeftRadius: 25,
+    // borderTopRightRadius: 25,
+  },
+  BoxPick:{
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap:3,
+  },
+  number:{
+    position: 'absolute',
+    top: -1,
+    right: -9,
+    backgroundColor: 'red',
+    height: 25,
+    width: 25,
+    borderRadius: 100,
+    backgroundColor: '#3273F6'
+  },
+  pick: {
+    height: 50,
+    width: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 100,
+  },
+  select: {
+    height: 60,
+    width: 60,
+    backgroundColor: 'rgb(87, 87, 87)',
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // alignSelf: 'flex-start'
+  },
+  PickTxt:{
+    color: "#FFF",
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  snap: {
+    height:60,
+    width: 60,
+    // backgroundColor: '#FFF',
+    borderRadius: 100,
+    borderWidth: 3,
+    borderColor: '#FFF',
+    alignItems: 'center',
+    justifyContent: 'center'
+
+  },
+  small: {
+    height: 46,
+    width: 46,
+    backgroundColor: '#FFF',
+    borderRadius: 100,
+
   },
   camera: {
     flex: 1,
-  
+
   },
   overlay: {
     flex: 1,
@@ -74,8 +148,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgb(0, 0, 0)',
-    zIndex:9,
-     borderWidth: 2,
+    zIndex: 9,
+    borderWidth: 2,
     borderColor: '#FFFFFF',
   },
   captureButton: {
@@ -85,7 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex:500
+    zIndex: 500
   },
   captureButtonDisabled: {
     opacity: 0.5,
