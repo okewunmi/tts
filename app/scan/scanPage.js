@@ -196,7 +196,6 @@ const CameraPreview = () => {
         mediaTypes: ['images'],
         allowsMultipleSelection: true, // only works on web and iOS
         quality: 1,
-        allowsEditing: true,
       });
 
       if (!result.canceled && result.assets) {
@@ -224,16 +223,24 @@ const CameraPreview = () => {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.BoxPick}
-          onPress={() => router.push("scan/preview")}
-        >
-          <View style={styles.pick} />
-          <View style={styles.number}>
-            <Text style={styles.num}>{images.length}</Text>
-          </View>
-          <Text style={styles.PickTxt}>Continue</Text>
-        </TouchableOpacity>
+        {images.length > 0 && (
+  <TouchableOpacity
+    style={styles.BoxPick}
+    onPress={() => router.push("scan/preview")}
+  >
+    <Image
+      source={{ uri: images[0] }}
+      style={styles.pick}
+      resizeMode="cover"
+    />
+    <View style={styles.number}>
+      <Text style={styles.num}>{images.length}</Text>
+    </View>
+    <Text style={styles.PickTxt}>Continue</Text>
+  </TouchableOpacity>
+)}
+
+
       </View>
     </View>
   );
