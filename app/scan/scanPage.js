@@ -8,7 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
-
+import { Link, router } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 const CameraPreview = () => {
 
@@ -27,19 +27,23 @@ const CameraPreview = () => {
 
       <View style={styles.bottom}>
         <TouchableOpacity style={styles.select}>
-         <FontAwesome name="photo" size={26} color="white" />
+          <FontAwesome name="photo" size={26} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.snap}>
           <View style={styles.small}></View>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.BoxPick}>
-        
-        <View style={styles.pick}>
-          
-        </View>
-        <View style={styles.number}></View>
-        <View ><Text style={styles.PickTxt}>Continue</Text></View>
+
+        <TouchableOpacity style={styles.BoxPick}
+          onPress={() => {
+            router.push("scan/preview");
+          }}
+        >
+
+          <View style={styles.pick}>
+
+          </View>
+          <View style={styles.number} ></View>
+          <View ><Text style={styles.PickTxt}>Continue</Text></View>
         </TouchableOpacity>
       </View>
 
@@ -57,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(8, 7, 7)',
     // borderColor: '#ececec',
     // borderTopWidth: 2,
-    
+
     flexDirection: 'row',
     paddingHorizontal: 50,
     alignItems: 'center',
@@ -66,12 +70,12 @@ const styles = StyleSheet.create({
     // borderTopLeftRadius: 25,
     // borderTopRightRadius: 25,
   },
-  BoxPick:{
+  BoxPick: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap:3,
+    gap: 3,
   },
-  number:{
+  number: {
     position: 'absolute',
     top: -1,
     right: -9,
@@ -96,25 +100,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // alignSelf: 'flex-start'
   },
-  PickTxt:{
+  PickTxt: {
     color: "#FFF",
     fontSize: 10,
     fontWeight: 'bold'
   },
   snap: {
-    height:60,
-    width: 60,
+    height: 80,
+    width: 80,
     // backgroundColor: '#FFF',
     borderRadius: 100,
-    borderWidth: 3,
+    borderWidth: 4,
     borderColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'center'
 
   },
   small: {
-    height: 46,
-    width: 46,
+    height: 60,
+    width: 60,
     backgroundColor: '#FFF',
     borderRadius: 100,
 
