@@ -1,52 +1,240 @@
-import React, { useState, useRef } from "react";
+// import React, { useState, useRef } from "react";
+// import {
+//   StyleSheet,
+//   Text,
+//   View,
+//   TouchableOpacity,
+//   ActivityIndicator,
+//   Alert,
+//   Platform,
+// } from "react-native";
+// import { Link, router } from "expo-router";
+// import FontAwesome from "@expo/vector-icons/FontAwesome";
+// const CameraPreview = () => {
+
+//   const [scanning, setScanning] = useState(false);
+//   const [uploadingToServer, setUploadingToServer] = useState(false);
+
+
+
+
+//   const handleCapture = async () => {
+
+//   };
+
+//   return (
+//     <View style={styles.container}>
+
+//       <View style={styles.bottom}>
+//         <TouchableOpacity style={styles.select}>
+//           <FontAwesome name="photo" size={26} color="white" />
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.snap}>
+//           <View style={styles.small}></View>
+//         </TouchableOpacity>
+
+//         <TouchableOpacity style={styles.BoxPick}
+//           onPress={() => {
+//             router.push("scan/preview");
+//           }}
+//         >
+
+//           <View style={styles.pick}>
+
+//           </View>
+//           <View style={styles.number} ><Text style={styles.num}>2</Text></View>
+//           <View ><Text style={styles.PickTxt}>Continue</Text></View>
+//         </TouchableOpacity>
+//       </View>
+
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: 'flex-end'
+//   },
+//   bottom: {
+//     height: 110,
+//     backgroundColor: 'rgb(8, 7, 7)',
+//     flexDirection: 'row',
+//     paddingHorizontal: 50,
+//     alignItems: 'center',
+//     paddingVertical: 15,
+//     justifyContent: 'space-between',
+
+//   },
+//   BoxPick: {
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     gap: 3,
+//   },
+//   number: {
+//     position: 'absolute',
+//     top: -1,
+//     right: -7,
+//     backgroundColor: 'red',
+//     height: 23,
+//     width: 23,
+//     borderRadius: 100,
+//     backgroundColor: '#3273F6',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   num:{
+// color: '#ffff',
+
+//   },
+//   pick: {
+//     height: 50,
+//     width: 50,
+//     backgroundColor: '#FFF',
+//     borderRadius: 100,
+//   },
+//   select: {
+//     height: 60,
+//     width: 60,
+//     backgroundColor: 'rgb(87, 87, 87)',
+//     borderRadius: 100,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     // alignSelf: 'flex-start'
+//   },
+//   PickTxt: {
+//     color: "#FFF",
+//     fontSize: 10,
+//     fontWeight: 'bold'
+//   },
+//   snap: {
+//     height: 80,
+//     width: 80,
+//     borderRadius: 100,
+//     borderWidth: 4,
+//     borderColor: '#FFF',
+//     alignItems: 'center',
+//     justifyContent: 'center'
+//   },
+//   small: {
+//     height: 60,
+//     width: 60,
+//     backgroundColor: '#FFF',
+//     borderRadius: 100,
+//   },
+
+// });
+
+// export default CameraPreview;
+
+// CameraPreview.js
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
+  Image,
+  ActivityIndicator,
   Platform,
 } from "react-native";
-import { Link, router } from "expo-router";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-const CameraPreview = () => {
+import { useGlobalContext } from "../../context/GlobalProvider";
 
+const CameraPreview = () => {
+  const cameraRef = useRef(null);
   const [scanning, setScanning] = useState(false);
   const [uploadingToServer, setUploadingToServer] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
 
+  const { addImage, images } = useGlobalContext();
 
+  // Request media library permission once
+  useEffect(() => {
+    (async () => {
+      const libPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setHasMediaLibraryPermission(libPermission.status === "granted");
+    })();
+  }, []);
 
+  if (!permission) return <View />;
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'white', textAlign: 'center', marginBottom: 10 }}>
+          We need camera permission to continue
+        </Text>
+        <TouchableOpacity onPress={requestPermission} style={styles.select}>
+          <Text style={{ color: 'white' }}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const handleCapture = async () => {
+    if (cameraRef.current) {
+      try {
+        setScanning(true);
+        const photo = await cameraRef.current.takePictureAsync();
+        addImage(photo.uri);
+      } catch (error) {
+        Alert.alert("Error", "Failed to take picture.");
+      } finally {
+        setScanning(false);
+      }
+    }
+  };
 
+  const pickFromLibrary = async () => {
+    if (hasMediaLibraryPermission) {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsMultipleSelection: true, // only works on web and iOS
+        quality: 1,
+        allowsEditing: true,
+      });
+
+      if (!result.canceled && result.assets) {
+        const uris = result.assets.map((asset) => asset.uri);
+        uris.forEach((uri) => addImage(uri));
+      }
+    } else {
+      Alert.alert("Permission required", "Please enable media library access.");
+    }
   };
 
   return (
-    <View style={styles.container}>
-
+    <View style={{ flex: 1 }}>
+      <CameraView ref={cameraRef} style={{ flex: 1 }} />
       <View style={styles.bottom}>
-        <TouchableOpacity style={styles.select}>
+        <TouchableOpacity style={styles.select} onPress={pickFromLibrary}>
           <FontAwesome name="photo" size={26} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.snap}>
-          <View style={styles.small}></View>
+
+        <TouchableOpacity style={styles.snap} onPress={handleCapture}>
+          {scanning ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <View style={styles.small} />
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.BoxPick}
-          onPress={() => {
-            router.push("scan/preview");
-          }}
+        <TouchableOpacity
+          style={styles.BoxPick}
+          onPress={() => router.push("scan/preview")}
         >
-
-          <View style={styles.pick}>
-
+          <View style={styles.pick} />
+          <View style={styles.number}>
+            <Text style={styles.num}>{images.length}</Text>
           </View>
-          <View style={styles.number} ></View>
-          <View ><Text style={styles.PickTxt}>Continue</Text></View>
+          <Text style={styles.PickTxt}>Continue</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -54,21 +242,17 @@ const CameraPreview = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    backgroundColor: 'black',
   },
   bottom: {
     height: 110,
     backgroundColor: 'rgb(8, 7, 7)',
-    // borderColor: '#ececec',
-    // borderTopWidth: 2,
-
     flexDirection: 'row',
     paddingHorizontal: 50,
     alignItems: 'center',
     paddingVertical: 15,
     justifyContent: 'space-between',
-    // borderTopLeftRadius: 25,
-    // borderTopRightRadius: 25,
   },
   BoxPick: {
     alignItems: 'center',
@@ -78,12 +262,17 @@ const styles = StyleSheet.create({
   number: {
     position: 'absolute',
     top: -1,
-    right: -9,
-    backgroundColor: 'red',
-    height: 25,
-    width: 25,
+    right: -7,
+    height: 23,
+    width: 23,
     borderRadius: 100,
-    backgroundColor: '#3273F6'
+    backgroundColor: '#3273F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  num: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   pick: {
     height: 50,
@@ -98,117 +287,28 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    // alignSelf: 'flex-start'
   },
   PickTxt: {
     color: "#FFF",
     fontSize: 10,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   snap: {
     height: 80,
     width: 80,
-    // backgroundColor: '#FFF',
     borderRadius: 100,
     borderWidth: 4,
     borderColor: '#FFF',
     alignItems: 'center',
-    justifyContent: 'center'
-
+    justifyContent: 'center',
   },
   small: {
     height: 60,
     width: 60,
     backgroundColor: '#FFF',
     borderRadius: 100,
-
-  },
-  camera: {
-    flex: 1,
-
-  },
-  overlay: {
-    flex: 1,
-    // backgroundColor: 'rgba(0,0,0,0.4)',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    width: '95%',
-    height: '100%',
-  },
-  scanFrame: {
-    // width: '95%',
-    // height: '100%',
-    // borderWidth: 2,
-    // borderColor: '#FFFFFF',
-    // borderRadius: 10,
-  },
-  controls: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: 30,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgb(0, 0, 0)',
-    zIndex: 9,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  captureButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 500
-  },
-  captureButtonDisabled: {
-    opacity: 0.5,
-  },
-  innerCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#000',
-  },
-  scanningOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanningText: {
-    color: '#FFFFFF',
-    marginTop: 10,
-    fontSize: 16,
-  },
-  permissionContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  permissionText: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  permissionButton: {
-    backgroundColor: '#3273F6',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  permissionButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
   },
 });
 
 export default CameraPreview;
+
