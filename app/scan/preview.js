@@ -610,7 +610,7 @@ function showResults(results) {
   );
 };
 
-export default Preview;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -654,3 +654,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default Preview;
