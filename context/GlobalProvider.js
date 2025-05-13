@@ -46,8 +46,8 @@
 
 // export default GlobalProvider;
 
-// GlobalContext.js
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCurrentUser } from "../lib/appwrite";
 
 const GlobalContext = createContext();
@@ -59,37 +59,62 @@ const GlobalProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
 
-  // Authentication check
   useEffect(() => {
-    getCurrentUser()
-      .then((res) => {
-        if (res) {
+    const loadUserAndImages = async () => {
+      try {
+        const [userData, cachedImages] = await Promise.all([
+          getCurrentUser(),
+          AsyncStorage.getItem("cachedImages"),
+        ]);
+
+        if (userData) {
           setIsLogged(true);
-          setUser(res);
-        } else {
-          setIsLogged(false);
-          setUser(null);
+          setUser(userData);
         }
-      })
-      .catch((error) => {
-        console.error("Appwrite auth error:", error);
-      })
-      .finally(() => {
+
+        if (cachedImages) {
+          setImages(JSON.parse(cachedImages));
+        }
+      } catch (error) {
+        console.error("Initialization error:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    loadUserAndImages();
   }, []);
 
-  // Add a single image URI
+  useEffect(() => {
+    const saveImages = async () => {
+      try {
+        if (images.length > 0) {
+          await AsyncStorage.setItem("cachedImages", JSON.stringify(images));
+        } else {
+          await AsyncStorage.removeItem("cachedImages");
+        }
+      } catch (error) {
+        console.error("Failed to save images:", error);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => {
+      saveImages();
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [images]);
+
   const addImage = (uri) => {
-    setImages((prev) => [...prev, uri]);
+    setImages((prev) => {
+      // Avoid duplicates
+      if (!prev.includes(uri)) {
+        return [...prev, uri];
+      }
+      return prev;
+    });
   };
 
-  // Add multiple image URIs
-  const addImages = (uris) => {
-    setImages((prev) => [...prev, ...uris]);
-  };
-
-  // Clear all stored image URIs
   const clearImages = () => {
     setImages([]);
   };
@@ -104,7 +129,6 @@ const GlobalProvider = ({ children }) => {
         loading,
         images,
         addImage,
-        addImages,
         clearImages,
       }}
     >
