@@ -20,24 +20,22 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router } from "expo-router";
-
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
+
 import * as Network from 'expo-network';
 
 import {
   createDocument,
-  uploadFile,
   getCurrentUser,
   createUrl,
   getAllUserContent,
-  extractFileText,
-  chunkedUploadFile,
+ 
   extractTextFromFile
 } from "../../lib/appwrite";
 import Card from "../../components/Card";
 import CardTxt from "../../components/CardTxt";
 import CardWeb from "../../components/CardWeb";
+import CardScan from "../../components/CardScan";
 const home = () => {
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
@@ -63,6 +61,8 @@ const home = () => {
         return <CardTxt item={item} />;
       case "Web":
         return <CardWeb item={item} />;
+        case "Scan":
+        return <CardScan item={item} />;
       default:
         return null;
     }

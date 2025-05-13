@@ -328,8 +328,8 @@
 
 // export default CameraPreview;
 
+
 import React, { useState, useRef, useEffect } from "react";
-import { createWorker } from 'tesseract.js';
 import {
   StyleSheet,
   Text,
@@ -344,28 +344,22 @@ import {
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useGlobalContext } from "../../context/GlobalProvider";
-// import MlkitOcr from 'react-native-mlkit-ocr';
 import { createScanDoc, getCurrentUser } from "../../lib/appwrite";
-import * as MlkitOcr from 'react-native-mlkit-ocr';
+import { Link, router } from "expo-router";
 const ScanScreen = () => {
-  // Camera and permissions state
   const cameraRef = useRef(null);
-  const [scanning, setScanning] = useState(false);
+  const flatListRef = useRef(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
 
-  // Preview state
-  const flatListRef = useRef(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [images, setImages] = useState([]); // Local state
+  const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
-
-  const { images, addImage, clearImages } = useGlobalContext();
-  const screenWidth = Dimensions.get('window').width;
+  const [user, setUser] = useState(null);
+  const screenWidth = Dimensions.get("window").width;
 
   useEffect(() => {
     (async () => {
@@ -377,13 +371,15 @@ const ScanScreen = () => {
         if (currentUser) {
           setUser(currentUser);
         }
-      } catch (error) {
+      } catch {
         Alert.alert("Error", "Failed to load user data");
       }
     })();
   }, []);
 
-  // Navigation functions for preview
+  const addImage = (uri) => setImages((prev) => [...prev, uri]);
+  const clearImages = () => setImages([]);
+
   const goPrev = () => {
     if (currentIndex > 0) {
       flatListRef.current.scrollToIndex({ index: currentIndex - 1, animated: true });
@@ -412,9 +408,7 @@ const ScanScreen = () => {
     index,
   });
 
-  // Camera functions
   const handleCapture = async () => {
-    
     if (cameraRef.current) {
       try {
         setScanning(true);
@@ -448,174 +442,66 @@ const ScanScreen = () => {
     }
   };
 
-  
- // OCR Processing
-
-
-// OCR Processing with Tesseract.js
 const handleContinue = async () => {
-  if (!user) {
-    Alert.alert("Error", "User not authenticated.");
-    return;
-  }
+  if (!user) return Alert.alert("User not loaded");
+  setLoading(true);
 
   try {
-    setLoading(true);
+    for (const uri of images) {
+      const formData = new FormData();
+      formData.append("apikey", "K85326546888957");
+      formData.append("language", "eng");
+      formData.append("isOverlayRequired", "false");
 
-    // 1. Validate all image URIs
-    const validImages = images.filter(uri => {
-      if (!uri || (!uri.startsWith('file://') && !uri.startsWith('content://'))) {
-        console.warn('Invalid image URI:', uri);
-        return false;
-      }
-      return true;
-    });
+      // Convert local image to blob
+      const imageBlob = {
+        uri,
+        name: "image.jpg",
+        type: "image/jpeg",
+      };
 
-    if (validImages.length === 0) {
-      Alert.alert("Error", "No valid images found");
-      return;
-    }
+      formData.append("file", imageBlob);
 
-    // 2. Create Tesseract worker
-    const worker = await createWorker({
-      logger: m => console.log(m), // Optional progress logger
-      errorHandler: err => console.error(err) // Error handler
-    });
+      const response = await fetch("https://api.ocr.space/parse/image", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
-    try {
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
+      const result = await response.json();
 
-      // 3. Process each image
-      const processingResults = await Promise.all(
-        validImages.map(async (uri) => {
-          try {
-            console.log(`Processing image from: ${uri}`);
-            
-            // Convert Android content URIs if needed
-            const processedUri = Platform.OS === 'android' && uri.startsWith('content://') 
-              ? await convertContentUriToFileUri(uri) 
-              : uri;
-
-            // Verify the image exists before processing
-            const fileExists = await FileSystem.getInfoAsync(processedUri);
-            if (!fileExists.exists) {
-              throw new Error("Image file not found");
-            }
-
-            // Perform OCR with timeout fallback
-            const result = await Promise.race([
-              worker.recognize(processedUri),
-              new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("OCR timeout (15s)")), 15000)
-              )
-            ]);
-
-            console.log('OCR raw result:', result.data.text);
-
-            if (!result.data.text || result.data.text.trim() === '') {
-              throw new Error("No text detected in image");
-            }
-
-            const extractedText = result.data.text;
-            const doc = await createScanDoc(user.$id, processedUri, extractedText);
-
-            return {
-              success: true,
-              uri: processedUri,
-              extractedText,
-              docId: doc.$id,
-              confidence: result.data.confidence
-            };
-          } catch (error) {
-            console.error(`Failed to process image ${uri}:`, {
-              error: error.message,
-              stack: error.stack,
-              uri: uri
-            });
-            return {
-              success: false,
-              uri,
-              error: error.message,
-              rawError: error
-            };
-          }
-        })
-      );
-
-      // 4. Analyze results
-      const successfulScans = processingResults.filter(r => r.success);
-      const failedScans = processingResults.filter(r => !r.success);
-
-      if (successfulScans.length > 0) {
-        let message = `Successfully extracted text from ${successfulScans.length} image(s)`;
-        
-        if (failedScans.length > 0) {
-          message += `\n\nFailed to process ${failedScans.length} image(s):\n`;
-          message += failedScans.map((f, i) => 
-            `${i+1}. ${f.uri.split('/').pop()}: ${f.error}`
-          ).join('\n');
-        }
-
-        Alert.alert("Scan Complete", message);
+      if (
+        result &&
+        result.ParsedResults &&
+        result.ParsedResults.length > 0
+      ) {
+        const extractedText = result.ParsedResults[0].ParsedText;
+        await createScanDoc(user.$id, uri, extractedText.trim());
       } else {
-        const errorDetails = failedScans.map(f => 
-          `• ${f.uri.split('/').pop()}: ${f.error}`
-        ).join('\n');
-        
-        Alert.alert(
-          "Scan Failed",
-          `Couldn't extract text from any images:\n\n${errorDetails}\n\nPossible solutions:\n- Use higher quality images\n- Ensure text is clear and horizontal\n- Try better lighting`
-        );
+        throw new Error("No text found in image.");
       }
-    } finally {
-      // Always terminate worker
-      await worker.terminate();
     }
+
+    Alert.alert("Success", "Images processed and saved.");
+    clearImages();
+    setShowPreview(false);
+router.replace("/library");
   } catch (error) {
-    console.error("Overall scan error:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    });
-    Alert.alert(
-      "Processing Error",
-      `An unexpected error occurred: ${error.message || 'Unknown error'}`
-    );
+    console.error("OCR error", error);
+    Alert.alert("Error", "OCR failed: " + error.message);
   } finally {
     setLoading(false);
   }
 };
 
-// Android Content URI to File URI converter (unchanged)
-const convertContentUriToFileUri = async (contentUri) => {
-  try {
-    // For Expo projects
-    if (MediaLibrary) {
-      const asset = await MediaLibrary.createAssetAsync(contentUri);
-      return asset.uri;
-    }
-    
-    // For bare React Native
-    const fileInfo = await FileSystem.getInfoAsync(contentUri);
-    if (fileInfo.exists) return contentUri;
-
-    // Fallback: Try to copy the file
-    const newPath = `${FileSystem.cacheDirectory}${Date.now()}.jpg`;
-    await FileSystem.copyAsync({ from: contentUri, to: newPath });
-    return newPath;
-  } catch (error) {
-    console.error("URI conversion failed:", error);
-    return contentUri; // Fallback to original URI
-  }
-};
 
   const handleCancel = () => {
     clearImages();
     setShowPreview(false);
   };
 
-  // Permission handling
   if (!permission) return <View />;
   if (!permission.granted) {
     return (
@@ -630,22 +516,14 @@ const convertContentUriToFileUri = async (contentUri) => {
     );
   }
 
-  // Main render
   return (
     <View style={styles.container}>
       {!showPreview ? (
         <>
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing="back"
-          />
+          <CameraView ref={cameraRef} style={styles.camera} facing="back" />
 
           <View style={styles.bottomControls}>
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={pickFromLibrary}
-            >
+            <TouchableOpacity style={styles.controlButton} onPress={pickFromLibrary}>
               <FontAwesome name="photo" size={26} color="white" />
             </TouchableOpacity>
 
@@ -705,23 +583,13 @@ const convertContentUriToFileUri = async (contentUri) => {
 
               <View style={styles.controls}>
                 <TouchableOpacity onPress={goPrev} disabled={currentIndex === 0}>
-                  <FontAwesome
-                    name="chevron-left"
-                    size={24}
-                    color={currentIndex === 0 ? '#ccc' : '#000'}
-                  />
+                  <FontAwesome name="chevron-left" size={24} color={currentIndex === 0 ? '#ccc' : '#000'} />
                 </TouchableOpacity>
 
-                <Text style={styles.counter}>
-                  {currentIndex + 1} / {images.length}
-                </Text>
+                <Text style={styles.counter}>{currentIndex + 1} / {images.length}</Text>
 
                 <TouchableOpacity onPress={goNext} disabled={currentIndex === images.length - 1}>
-                  <FontAwesome
-                    name="chevron-right"
-                    size={24}
-                    color={currentIndex === images.length - 1 ? '#ccc' : '#000'}
-                  />
+                  <FontAwesome name="chevron-right" size={24} color={currentIndex === images.length - 1 ? '#ccc' : '#000'} />
                 </TouchableOpacity>
               </View>
             </>
@@ -755,7 +623,7 @@ const convertContentUriToFileUri = async (contentUri) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+    container: {
     flex: 1,
     backgroundColor: 'black',
   },
@@ -872,5 +740,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 export default ScanScreen;

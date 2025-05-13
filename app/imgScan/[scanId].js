@@ -8,22 +8,22 @@ import {
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
-import { getDocumentById } from "../../lib/appwrite";
+import {getScanById } from "../../lib/appwrite";
  import TTSFunction from "../../components/Tts";
 
 
 const FileView = () => {
-  const { fileId } = useLocalSearchParams();
+  const { scanId } = useLocalSearchParams();
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDocument();
-  }, [fileId]);
+  }, [scanId]);
 
   const fetchDocument = async () => {
     try {
-      const doc = await getDocumentById(fileId);
+      const doc = await getScanById(scanId);
       setDocument(doc);
     } catch (error) {
       console.error("Error loading document:", error);

@@ -255,10 +255,7 @@ import { useGlobalContext } from '../../context/GlobalProvider';
 import { scanImages } from "../../lib/appwrite";
 import { getCurrentUser } from "../../lib/appwrite";
 import { router } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
-import TextRecognition from '@react-native-ml-kit/text-recognition';
-import Tesseract from 'tesseract.js';
-import { readFile } from 'react-native-fs';
+
 
 const Preview = () => {
   const { images, clearImages } = useGlobalContext();

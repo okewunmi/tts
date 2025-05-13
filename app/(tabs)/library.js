@@ -16,14 +16,14 @@ import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import Feather from "@expo/vector-icons/Feather";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  getDocuments,
   getCurrentUser,
   getAllUserContent,
 } from "../../lib/appwrite";
-import { useLocalSearchParams, useRouter } from "expo-router";
+
 import Card from "../../components/Card";
 import CardTxt from "../../components/CardTxt";
 import CardWeb from "../../components/CardWeb";
+import CardScan from "../../components/CardScan";
 
 const DATA = [
   { id: "1", title: "All" },
@@ -74,6 +74,8 @@ const Library = () => {
         return <CardTxt item={item} />;
       case "Web":
         return <CardWeb item={item} />;
+        case "Scan":
+        return <CardScan item={item} />;
       default:
         return null;
     }
