@@ -43,6 +43,7 @@ const FileView = () => {
     
     setIsSubmitting(true);
     try {
+      
       const result = await createtext(txt, user.$id);
       // setForm(result);
       Alert.alert("Success", "Text is save successfully!");
