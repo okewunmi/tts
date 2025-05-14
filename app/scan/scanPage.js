@@ -344,6 +344,7 @@ import {
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from 'expo-file-system';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { createScanDoc, getCurrentUser } from "../../lib/appwrite";
 import { Link, router } from "expo-router";
@@ -487,7 +488,7 @@ const handleContinue = async () => {
     Alert.alert("Success", "Images processed and saved.");
     clearImages();
     setShowPreview(false);
-router.replace("/library");
+    router.replace("/library");
   } catch (error) {
     console.error("OCR error", error);
     Alert.alert("Error", "OCR failed: " + error.message);
@@ -495,6 +496,46 @@ router.replace("/library");
     setLoading(false);
   }
 };
+
+// const handleContinue = async () => {
+//   if (!user) return Alert.alert("User not loaded");
+//   setLoading(true);
+
+//   try {
+//     for (const uri of images) {
+//       const base64 = await convertToBase64(uri);
+//       const dataUrl = `data:image/jpeg;base64,${base64}`;
+
+//       const response = await fetch("https://tomofi-easyocr.hf.space/+/api/predict/", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({
+//           data: [dataUrl] // Assumes Space expects an array of base64 image strings
+//         })
+//       });
+
+//       const result = await response.json();
+
+//       if (result && result.data && result.data.length > 0) {
+//         const extractedText = result.data[0]; // You might need to check the actual format of result
+//         await createScanDoc(user.$id, uri, extractedText.trim());
+//       } else {
+//         throw new Error("No text returned from OCR.");
+//       }
+//     }
+
+//     Alert.alert("Success", "Images processed and saved.");
+//     clearImages();
+//     setShowPreview(false);
+//   } catch (error) {
+//     console.error("OCR error", error);
+//     Alert.alert("Error", "OCR failed: " + error.message);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 
   const handleCancel = () => {

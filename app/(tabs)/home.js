@@ -21,7 +21,6 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
-
 import * as Network from 'expo-network';
 
 import {
@@ -29,9 +28,9 @@ import {
   getCurrentUser,
   createUrl,
   getAllUserContent,
- 
   extractTextFromFile
 } from "../../lib/appwrite";
+
 import Card from "../../components/Card";
 import CardTxt from "../../components/CardTxt";
 import CardWeb from "../../components/CardWeb";

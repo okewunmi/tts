@@ -16,7 +16,7 @@ const into = () => {
           <View style={styles.boxTxt}>
             <Text style={styles.txt}>Transform Text into Speech with AI</Text>
             <Text style={styles.para}>
-              Welcome to Voxify, the Ai-powered app that brign your text to
+              Welcome to Voxify, the Ai-powered app that bring your text to
               life. Convert any texts to high-quality in a few taps.
             </Text>
           </View>
