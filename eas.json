@@ -9,7 +9,6 @@
       "distribution": "internal",
       "channel": "development",
       "android": {
-       
         "gradleCommand": ":app:assembleDebug --warning-mode all",
         "buildType": "apk"
       }
@@ -18,16 +17,15 @@
       "distribution": "internal",
       "channel": "preview",
       "android": {
-       
-        "gradleCommand": ":app:assembleDebug --warning-mode all" ,
+        "gradleCommand": ":app:assembleDebug --warning-mode all",
         "buildType": "apk"
-      }
+      },
+      "prebuildCommand": "npx react-native-asset && cd android && echo 'distributionUrl=https\\://services.gradle.org/distributions/gradle-7.6.3-all.zip' > gradle/wrapper/gradle-wrapper.properties"
     },
     "production": {
       "autoIncrement": true,
       "channel": "production",
       "android": {
-       
         "gradleCommand": ":app:assembleDebug",
         "buildType": "apk"
       }
@@ -37,4 +35,3 @@
     "production": {}
   }
 }
-
