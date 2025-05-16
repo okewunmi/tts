@@ -324,53 +324,7 @@ const TTSFunction = ({ text, onChunkChange }) => {
     }
   };
 
-  // const playChunk = async () => {
-  //   const index = currentIndex.current;
-  //   if (index >= chunks.current.length) {
-  //     setPlaying(false);
-  //     return;
-  //   }
-
-  //   // 🛑 Wait if audio for this chunk isn't loaded yet
-  //   if (!chunkAudios.current[index]) {
-  //     setTimeout(playChunk, 1000); // retry after 1 second
-  //     return;
-  //   }
-
-  //   const filePath = chunkAudios.current[index];
-
-  //   if (playbackInstance.current) {
-  //     await playbackInstance.current.unloadAsync();
-  //   }
-
-  //   try {
-  //     const { sound } = await Audio.Sound.createAsync(
-  //       { uri: filePath },
-  //       { shouldPlay: false, rate: speed }
-  //     );
-
-  //     playbackInstance.current = sound;
-  //     setAudioUri(filePath);
-
-  //     sound.setOnPlaybackStatusUpdate((status) => {
-  //       if (status.isLoaded) {
-  //         setElapsedTime(status.positionMillis + (index * (totalDuration / chunks.current.length)));
-  //         if (status.didJustFinish) {
-  //           currentIndex.current++;
-  //           setProgress((currentIndex.current / chunks.current.length) * 100);
-  //           playChunk(); // continue to next
-  //         }
-  //       }
-  //     });
-
-  //     await sound.playAsync();
-  //     preloadNextChunk(); // load future chunk
-  //   } catch (error) {
-  //     console.error('Playback error:', error);
-  //     setPlaying(false);
-  //   }
-  // };
-
+ 
 const playChunk = async () => {
   const index = currentIndex.current;
   if (index >= chunks.current.length) {
