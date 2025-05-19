@@ -29,7 +29,13 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ],
-      "package": "com.okewunmi.tts"
+      "package": "com.okewunmi.tts",
+      "extraDependencies": {
+        "exclude": [
+          "com.android.support:support-compat",
+          "com.android.support:support-media-compat"
+        ]
+      }
     },
     "web": {
       "bundler": "metro",
@@ -38,7 +44,22 @@
     },
     "plugins": [
       "expo-router",
-        "expo-splash-screen"
+      "expo-splash-screen",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "useNextNotificationsApi": true,
+            "enableJetifier": true
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
