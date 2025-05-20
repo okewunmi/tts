@@ -204,7 +204,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
-
+// import { Audio } from 'expo-audio';
 const CHUNK_SIZE = 200; // characters per chunk
 
 const createChunks = (text) => {
@@ -355,16 +355,7 @@ const playChunk = async () => {
     // Notify parent component of the active chunk
     onChunkChange?.(currentIndex.current);
 
-    // sound.setOnPlaybackStatusUpdate((status) => {
-    //   if (status.isLoaded) {
-    //     setElapsedTime(status.positionMillis + (index * (totalDuration / chunks.current.length)));
-    //     if (status.didJustFinish) {
-    //       currentIndex.current++;
-    //       setProgress((currentIndex.current / chunks.current.length) * 100);
-    //       playChunk();
-    //     }
-    //   }
-    // });
+    
 sound.setOnPlaybackStatusUpdate((status) => {
   if (status.isLoaded) {
     setElapsedTime(

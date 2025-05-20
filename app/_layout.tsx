@@ -168,15 +168,6 @@ const RootLayout = () => {
               headerTintColor: 'white',
             }}
           />
-          <Stack.Screen
-            name="scan/preview"
-            options={{
-              headerStyle: {
-                backgroundColor: 'black',
-              },
-              headerTintColor: 'white',
-            }}
-          />
         </Stack>
 
         <StatusBar style="light" />
