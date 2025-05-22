@@ -288,7 +288,8 @@ const TTSFunction = ({ text, onChunkChange }) => {
         },
         body: JSON.stringify({
           data: [
-            text.slice(0, 900000000),
+            // text.slice(0, 900000000),
+            text.slice(0, 900),
             selectedLanguage
           ]
         })
@@ -324,63 +325,63 @@ const TTSFunction = ({ text, onChunkChange }) => {
     }
   };
 
- 
-const playChunk = async () => {
-  const index = currentIndex.current;
-  if (index >= chunks.current.length) {
-    setPlaying(false);
-    return;
-  }
 
-  if (!chunkAudios.current[index]) {
-    setTimeout(playChunk, 1000);
-    return;
-  }
-
-  const filePath = chunkAudios.current[index];
-
-  if (playbackInstance.current) {
-    await playbackInstance.current.unloadAsync();
-  }
-
-  try {
-    const { sound } = await Audio.Sound.createAsync(
-      { uri: filePath },
-      { shouldPlay: false, rate: speed }
-    );
-
-    playbackInstance.current = sound;
-    setAudioUri(filePath);
-
-    // Notify parent component of the active chunk
-    onChunkChange?.(currentIndex.current);
-
-    
-sound.setOnPlaybackStatusUpdate((status) => {
-  if (status.isLoaded) {
-    setElapsedTime(
-      status.positionMillis +
-      index * (totalDuration / chunks.current.length)
-    );
-
-    if (status.didJustFinish) {
-      currentIndex.current++;
-       onChunkChange?.(currentIndex.current); 
-      setProgress(
-        (currentIndex.current / chunks.current.length) * 100
-      );
-      playChunk();
+  const playChunk = async () => {
+    const index = currentIndex.current;
+    if (index >= chunks.current.length) {
+      setPlaying(false);
+      return;
     }
-  }
-});
 
-    await sound.playAsync();
-    preloadNextChunk();
-  } catch (error) {
-    console.error('Playback error:', error);
-    setPlaying(false);
-  }
-};
+    if (!chunkAudios.current[index]) {
+      setTimeout(playChunk, 1000);
+      return;
+    }
+
+    const filePath = chunkAudios.current[index];
+
+    if (playbackInstance.current) {
+      await playbackInstance.current.unloadAsync();
+    }
+
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: filePath },
+        { shouldPlay: false, rate: speed }
+      );
+
+      playbackInstance.current = sound;
+      setAudioUri(filePath);
+
+      // Notify parent component of the active chunk
+      onChunkChange?.(currentIndex.current);
+
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded) {
+          setElapsedTime(
+            status.positionMillis +
+            index * (totalDuration / chunks.current.length)
+          );
+
+          if (status.didJustFinish) {
+            currentIndex.current++;
+            onChunkChange?.(currentIndex.current);
+            setProgress(
+              (currentIndex.current / chunks.current.length) * 100
+            );
+            playChunk();
+          }
+        }
+      });
+
+      await sound.playAsync();
+      preloadNextChunk();
+    } catch (error) {
+      console.error('Playback error:', error);
+      setPlaying(false);
+    }
+  };
 
   const speak = async () => {
     if (!text) return;
@@ -479,10 +480,15 @@ sound.setOnPlaybackStatusUpdate((status) => {
           }
         }}
       />
-
-      <Text style={{ alignSelf: 'center', fontSize: 13, marginBottom: 2 }}>
-        Progress: {progress.toFixed(0)}% | Est. Duration: {estimateDuration(text).toFixed(1)}s
+      <View style={styles.Time}> 
+        <Text style={styles.TimeTxt}>
+       {progress.toFixed(0)}%
       </Text>
+        <Text style={styles.TimeTxt}>
+          {estimateDuration(text).toFixed(1)}s
+        </Text>
+      </View>
+
 
       <View style={styles.controlsRow}>
         <TouchableOpacity style={styles.controlButton} onPress={restart}>
@@ -522,7 +528,7 @@ const styles = StyleSheet.create({
   languageContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-   
+
   },
   label: {
     marginRight: 8,
@@ -536,14 +542,14 @@ const styles = StyleSheet.create({
   },
   picker: {
     width: '100%',
-    
+
   },
   controlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginTop: 14,
-    
+    // marginTop: 14,
+
   },
   playButton: {
     backgroundColor: '#3273F6',
@@ -569,7 +575,21 @@ const styles = StyleSheet.create({
   },
   controlText: {
     marginTop: 4,
-    fontSize: 10,
+    fontSize: 12,
+    fontWeight: 'bold'
+  },
+  Time:{
+   flexDirection: 'row',
+   justifyContent: 'space-between',
+   paddingVertical: 10,
+   marginTop: -20,
+   width: '100%',
+   paddingHorizontal: 13
+  }, 
+  TimeTxt:{
+alignSelf: 'center', 
+fontSize: 14, 
+fontWeight: "500",
   },
 });
 
