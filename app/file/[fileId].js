@@ -215,8 +215,10 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
-    backgroundColor: "#eeee",
-    padding: 20,
+    // backgroundColor: "#eeee",
+     backgroundColor: "#ebf5fb",
+    paddingTop: 20,
+    paddingHorizontal: 12,
     marginTop: -25.2,
   },
   boxTxt: {},

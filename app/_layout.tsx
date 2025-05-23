@@ -3,8 +3,10 @@ import { SplashScreen, Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import GlobalProvider from '../context/GlobalProvider';
-import { Ionicons } from '@expo/vector-icons'; // or your icon library
 import { TouchableOpacity, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Prevent auto hiding of splash screen
 SplashScreen.preventAutoHideAsync();
@@ -23,8 +25,6 @@ const RootLayout = () => {
   useEffect(() => {
     if (error) {
       console.error('Font loading error:', error);
-      // You might want to handle this error differently
-      // For example, show an error screen or use fallback fonts
     }
   }, [error]);
 
@@ -55,21 +55,17 @@ const RootLayout = () => {
                   <TouchableOpacity
                     onPress={() => console.log('Search pressed')}
                   >
-                    <Ionicons name="search" size={24} color="black" />
+                    <FontAwesome6 name="microchip" size={24} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => console.log('Bookmark pressed')}
                   >
-                    <Ionicons name="bookmark-outline" size={24} color="black" />
+                    <MaterialIcons name="text-fields" size={24} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => console.log('Share pressed')}
                   >
-                    <Ionicons
-                      name="share-social-outline"
-                      size={24}
-                      color="black"
-                    />
+                    <MaterialIcons name="download" size={24} color="black" />
                   </TouchableOpacity>
                 </View>
               ),
@@ -85,7 +81,6 @@ const RootLayout = () => {
             name="type/typing"
             options={{ headerTitle: 'Write or Paste Text' }}
           />
-          {/* <Stack.Screen name="url/[urlId]"   /> */}
           <Stack.Screen
             name="url/[urlId]"
             options={{
@@ -96,21 +91,17 @@ const RootLayout = () => {
                   <TouchableOpacity
                     onPress={() => console.log('Search pressed')}
                   >
-                    <Ionicons name="search" size={24} color="black" />
+                    <FontAwesome6 name="microchip" size={24} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => console.log('Bookmark pressed')}
                   >
-                    <Ionicons name="bookmark-outline" size={24} color="black" />
+                    <MaterialIcons name="text-fields" size={24} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => console.log('Share pressed')}
                   >
-                    <Ionicons
-                      name="share-social-outline"
-                      size={24}
-                      color="black"
-                    />
+                    <MaterialIcons name="download" size={24} color="black" />
                   </TouchableOpacity>
                 </View>
               ),
@@ -127,27 +118,48 @@ const RootLayout = () => {
                   <TouchableOpacity
                     onPress={() => console.log('Search pressed')}
                   >
-                    <Ionicons name="search" size={24} color="black" />
+                    <FontAwesome6 name="microchip" size={24} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => console.log('Bookmark pressed')}
                   >
-                    <Ionicons name="bookmark-outline" size={24} color="black" />
+                    <MaterialIcons name="text-fields" size={24} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => console.log('Share pressed')}
                   >
-                    <Ionicons
-                      name="share-social-outline"
-                      size={24}
-                      color="black"
-                    />
+                     <MaterialIcons name="download" size={24} color="black" />
                   </TouchableOpacity>
                 </View>
               ),
             }}
           />
-
+          <Stack.Screen
+            name="imgScan/[scanId]"
+            options={{
+              headerRight: () => (
+                <View
+                  style={{ flexDirection: 'row', gap: 15, paddingRight: 10 }}
+                >
+                  <TouchableOpacity
+                    onPress={() => console.log('Search pressed')}
+                  >
+                    <FontAwesome6 name="microchip" size={24} color="black" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => console.log('Bookmark pressed')}
+                  >
+                    <MaterialIcons name="text-fields" size={24} color="black" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => console.log('Share pressed')}
+                  >
+                    <MaterialIcons name="download" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              ),
+            }}
+          />
           <Stack.Screen
             name="scan/scanPage"
             options={{

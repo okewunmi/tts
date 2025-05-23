@@ -1,28 +1,146 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
-
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 const profile = () => {
   return (
     <SafeAreaView style={styles.safe} >
-      <View>
-      <Text>library</Text>
-    </View>
+      <View style={styles.top}>
+        <View style={styles.Logo}>
+          <MaterialCommunityIcons
+            name="text-to-speech"
+            size={20}
+            color="#fff"
+          />
+        </View>
+        <Text style={styles.head}>Account</Text>
+        <TouchableOpacity>
+          <SimpleLineIcons name="options-vertical" size={18} color="black" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.preview}>
+        <View style={[styles.imgBox]}>
+          <FontAwesome6
+            name="crown"
+            size={28}
+            color="#f7b401"
+          />
+        </View>
+        <TouchableOpacity style={styles.txtBox}>
+          <Text style={styles.heading}>Upgrade Plan Now!</Text>
+          <Text style={styles.txt}>Enjoy all the benefits and explore posibilities</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.person}>
+        <View style={styles.personPic}>
+
+        </View>
+        <View style={styles.txtBox}>
+          <Text style={styles.heading2}>Okewunmi Abdulafeez</Text>
+          <Text style={styles.txt2}>OkewunmiAfeezOlaide@gmail.com</Text>
+        </View>
+      </View>
+
     </SafeAreaView>
-    
+
   );
 };
 
 export default profile;
 
 const styles = StyleSheet.create({
-safe: {
+  safe: {
     flex: 1,
-    justifyContent: "center",
+    // justifyContent: "center",
     alignItems: "center",
     height: "100%",
-    backgroundColor: "#ffff",
-    paddingVertical: 25,
+    backgroundColor: "#ebf5fb",
+    paddingVertical: 20,
     paddingHorizontal: 15,
+    gap: 15,
+  },
+  top: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 20,
+    // height: 20,
+    alignItems: "center",
+  },
+  head: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  Logo: {
+    backgroundColor: "#3273F6",
+    borderRadius: 100,
+    padding: 5,
+  },
+  preview: {
+    borderRadius: 10,
+    width: "100%",
+    height: 80,
+    backgroundColor: "#3273F6",
+    flexDirection: "row",
+    // justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    gap: 15,
+  },
+  imgBox: {
+    borderRadius: '100%',
+    height: 45,
+    width: 45,
+    backgroundColor: '#ffff',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  txtBox: {
+    justifyContent: "center",
+    // width: '5%',
+    height: "100%",
+    gap: 5,
+  },
+  heading: {
+    fontWeight: "900",
+    fontSize: 16,
+    color: "#fff",
+  },
+  heading2: {
+   fontSize: 13,
+   fontWeight: "500",
+  },
+  txt: {
+    fontSize: 12,
+    // color: "#dedede",
+    color: "#eeee",
+  },
+  txt2: {
+    fontSize: 11,
+    marginTop: -4,
+  
+  },
+  person: {
+    backgroundColor: '#ffff',
+    height: 80,
+    borderRadius: 10,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    gap: 15,
+  },
+  personPic: {
+    borderRadius: '100%',
+    height: 55,
+    width: 55,
+    borderWidth: 2,
+    borderColor: "#cecece",
+    backgroundColor: '#3273F6'
+
   },
 });

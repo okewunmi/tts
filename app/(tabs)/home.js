@@ -348,7 +348,7 @@ const handleFileUpload = async () => {
             <Entypo
               name="text-document"
               size={25}
-              color="black"
+              color="white"
               style={styles.icon3}
             />
             <Text style={styles.iconTxt}>Write or Paste Text</Text>
