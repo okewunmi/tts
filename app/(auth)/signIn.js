@@ -14,7 +14,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { getCurrentUser, signIn } from "../../lib/appwrite";
+import { getCurrentUser, signIn , signOut} from "../../lib/appwrite";
 import { router, Link } from "expo-router";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
@@ -26,37 +26,70 @@ const SignIn = () => {
     email: "",
     password: "",
   });
+const { setUser, setIsLogged } = useGlobalContext();
 
-  const submit = async () => {
-    if (!form.email || !form.password) {
-      Alert.alert("Error", "Please fill in both email and password fields.");
-      console.log("form checked.");
-      return;
-    }
+  // const submit = async () => {
+  //   if (!form.email || !form.password) {
+  //     Alert.alert("Error", "Please fill in both email and password fields.");
+  //     console.log("form checked.");
+  //     return;
+  //   }
 
-    setIssubmtting(true);
-    console.log("setsubmiting is true.");
-    const { email, password } = form;
+  //   setIssubmtting(true);
+  //   console.log("setsubmiting is true.");
+  //   const { email, password } = form;
 
+  //   try {
+  //     await signIn(form.email, form.password);
+  //     const result = await getCurrentUser();
+  //     setUser(result);
+  //     setIsLogged(true);
+  //     Alert.alert("Success", "User signed in successfully");
+  //     // const result = await getCurrentUser();
+  //     router.replace("/home");
+  //     console.log("Navigation to home page successful.");
+  //     return result;
+  //   } catch (error) {
+  //     Alert.alert(
+  //       "Login Failed",
+  //       error.message || "An error occurred. Please try again."
+  //     );
+  //   } finally {
+  //     setIssubmtting(false);
+  //   }
+  // };
+const submit = async () => {
+  if (!form.email || !form.password) {
+    Alert.alert("Error", "Please fill in both email and password fields.");
+    return;
+  }
+
+  setIssubmtting(true);
+
+  try {
+    // Sign out if a session exists
     try {
-      await signIn(form.email, form.password);
-      const result = await getCurrentUser();
-      setUser(result);
-      setIsLogged(true);
-      Alert.alert("Success", "User signed in successfully");
-      // const result = await getCurrentUser();
-      router.replace("/home");
-      console.log("Navigation to home page successful.");
-      return result;
-    } catch (error) {
-      Alert.alert(
-        "Login Failed",
-        error.message || "An error occurred. Please try again."
-      );
-    } finally {
-      setIssubmtting(false);
+      await signOut(); // from your `lib/appwrite.js`
+    } catch (err) {
+      console.log("No active session to sign out or signOut failed:", err.message);
     }
-  };
+
+    // Now sign in
+    await signIn(form.email, form.password);
+    const result = await getCurrentUser();
+    setUser(result);
+    setIsLogged(true);
+    Alert.alert("Success", "User signed in successfully");
+    router.replace("/home");
+  } catch (error) {
+    Alert.alert(
+      "Login Failed",
+      error.message || "An error occurred. Please try again."
+    );
+  } finally {
+    setIssubmtting(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.safe}>

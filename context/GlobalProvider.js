@@ -48,7 +48,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCurrentUser } from "../lib/appwrite";
+import { getCurrentUser, signOut } from "../lib/appwrite";
 
 const GlobalContext = createContext();
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -118,6 +118,9 @@ const GlobalProvider = ({ children }) => {
   const clearImages = () => {
     setImages([]);
   };
+
+ 
+
 
   return (
     <GlobalContext.Provider

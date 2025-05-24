@@ -1,10 +1,34 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useGlobalContext } from "../../context/GlobalProvider"; // adjust path if needed
+import { signOut, getAccount } from "../../lib/appwrite";
 const profile = () => {
+  const { setIsLogged, setUser } = useGlobalContext();
+
+
+  const handleLogout = async () => {
+    try {
+      const user = await getAccount();
+      // Use imported helper
+      if (user) {
+        await signOut();
+        setUser(null);
+        setIsLogged(false);
+      }
+    } catch
+    (error) {
+      console.log("User is not logged in, or logout failed:", error.message);
+      setUser(null);
+      setIsLogged
+        (false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safe} >
       <View style={styles.top}>
@@ -36,13 +60,27 @@ const profile = () => {
       </View>
 
       <View style={styles.person}>
-        <View style={styles.personPic}>
-
-        </View>
+        {/* <View style={styles.personPic}>
+          <Image source={image} style={styles.img} />
+        </View> */}
+        <Image
+          source={require('../../assets/images/profile.jpg')}
+          style={styles.personPic}
+        />
         <View style={styles.txtBox}>
           <Text style={styles.heading2}>Okewunmi Abdulafeez</Text>
           <Text style={styles.txt2}>OkewunmiAfeezOlaide@gmail.com</Text>
         </View>
+        <TouchableOpacity>
+          <MaterialIcons name="arrow-forward-ios" size={24} color="grey" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.card}>
+        <TouchableOpacity style={styles.logout} onPress={handleLogout}>
+          <MaterialIcons name="logout" size={24} color="red" />
+          <View><Text style={styles.red}>Logout</Text></View>
+        </TouchableOpacity>
       </View>
 
     </SafeAreaView>
@@ -58,7 +96,8 @@ const styles = StyleSheet.create({
     // justifyContent: "center",
     alignItems: "center",
     height: "100%",
-    backgroundColor: "#ebf5fb",
+    // backgroundColor: "#ebf5fb",
+    backgroundColor: "#E1EBEE",
     paddingVertical: 20,
     paddingHorizontal: 15,
     gap: 15,
@@ -90,6 +129,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 15,
     gap: 15,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    // Android Shadow
+    elevation: 10,
   },
   imgBox: {
     borderRadius: '100%',
@@ -111,8 +161,8 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   heading2: {
-   fontSize: 13,
-   fontWeight: "500",
+    fontSize: 13,
+    fontWeight: "500",
   },
   txt: {
     fontSize: 12,
@@ -122,7 +172,7 @@ const styles = StyleSheet.create({
   txt2: {
     fontSize: 11,
     marginTop: -4,
-  
+
   },
   person: {
     backgroundColor: '#ffff',
@@ -131,16 +181,54 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: 'space-between',
     paddingHorizontal: 15,
-    gap: 15,
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    // Android Shadow
+    elevation: 10,
   },
   personPic: {
-    borderRadius: '100%',
+    borderRadius: 100,
     height: 55,
     width: 55,
-    borderWidth: 2,
-    borderColor: "#cecece",
-    backgroundColor: '#3273F6'
+    objectFit: 'cover',
+  },
+  card: {
+    width: '100%',
+    padding: 20,
+    height: 420,
+    backgroundColor: '#ffff',
+    borderRadius: 10,
+    shadowColor: '#000',
+    justifyContent: 'flex-end',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
+
+    // Android Shadow
+    elevation: 10,
+  },
+  logout: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
 
   },
+  red: {
+    fontWeight: 'bold',
+    color: 'red',
+    fontSize: 14,
+  },
+
 });
