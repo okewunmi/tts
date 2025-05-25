@@ -14,7 +14,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { getCurrentUser, signIn , signOut} from "../../lib/appwrite";
+import { getCurrentUser, signIn, signOut } from "../../lib/appwrite";
 import { router, Link } from "expo-router";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
@@ -26,70 +26,52 @@ const SignIn = () => {
     email: "",
     password: "",
   });
-const { setUser, setIsLogged } = useGlobalContext();
+  const [showPassword, setShowPassword] = useState(false);
+  const { setUser, setIsLogged } = useGlobalContext();
 
-  // const submit = async () => {
-  //   if (!form.email || !form.password) {
-  //     Alert.alert("Error", "Please fill in both email and password fields.");
-  //     console.log("form checked.");
-  //     return;
-  //   }
 
-  //   setIssubmtting(true);
-  //   console.log("setsubmiting is true.");
-  //   const { email, password } = form;
-
-  //   try {
-  //     await signIn(form.email, form.password);
-  //     const result = await getCurrentUser();
-  //     setUser(result);
-  //     setIsLogged(true);
-  //     Alert.alert("Success", "User signed in successfully");
-  //     // const result = await getCurrentUser();
-  //     router.replace("/home");
-  //     console.log("Navigation to home page successful.");
-  //     return result;
-  //   } catch (error) {
-  //     Alert.alert(
-  //       "Login Failed",
-  //       error.message || "An error occurred. Please try again."
-  //     );
-  //   } finally {
-  //     setIssubmtting(false);
-  //   }
-  // };
-const submit = async () => {
-  if (!form.email || !form.password) {
-    Alert.alert("Error", "Please fill in both email and password fields.");
-    return;
-  }
-
-  setIssubmtting(true);
-
-  try {
-    // Sign out if a session exists
-    try {
-      await signOut(); // from your `lib/appwrite.js`
-    } catch (err) {
-      console.log("No active session to sign out or signOut failed:", err.message);
+  const submit = async () => {
+    if (!form.email || !form.password) {
+      Alert.alert("Error", "Please fill in both email and password fields.");
+      return;
     }
 
-    // Now sign in
-    await signIn(form.email, form.password);
-    const result = await getCurrentUser();
-    setUser(result);
-    setIsLogged(true);
-    Alert.alert("Success", "User signed in successfully");
-    router.replace("/home");
-  } catch (error) {
-    Alert.alert(
-      "Login Failed",
-      error.message || "An error occurred. Please try again."
-    );
-  } finally {
-    setIssubmtting(false);
-  }
-};
+    setIssubmtting(true);
+
+    try {
+      // Step 1: Sign out existing session if any
+      try {
+        await signOut(); // from lib/appwrite.js
+      } catch (err) {
+        console.log("No active session to sign out or signOut failed:", err.message);
+      }
+
+      // Step 2: Sign in the user
+      await signIn(form.email, form.password);
+
+      // Step 3: Confirm the session by retrieving the current user document
+      const result = await getCurrentUser();
+
+      // Step 4: Proceed only if user account is successfully retrieved
+      if (result) {
+        setUser(result);
+        setIsLogged(true);
+        Alert.alert("Success", "User signed in successfully");
+        router.replace("/home");
+      } else {
+        throw new Error("User session could not be verified.");
+      }
+
+    } catch (error) {
+      Alert.alert(
+        "Login Failed",
+        error.message || "An error occurred. Please try again."
+      );
+    } finally {
+      setIssubmtting(false);
+    }
+  };
+
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -118,6 +100,7 @@ const submit = async () => {
             />
           </View>
         </View>
+
         <View style={styles.Box}>
           <Text style={styles.label}>Password </Text>
           <View style={styles.touchInput}>
@@ -128,17 +111,13 @@ const submit = async () => {
             />
             <TextInput
               placeholder="Password"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               style={styles.input}
               value={form.password}
               onChangeText={(text) => setForm({ ...form, password: text })}
             />
-            <TouchableOpacity>
-              <MaterialCommunityIcons
-                name="eye-off-outline"
-                size={22}
-                color="black"
-              />
+            <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
+              <MaterialCommunityIcons name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="black" />
             </TouchableOpacity>
           </View>
         </View>

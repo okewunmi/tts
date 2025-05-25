@@ -23,6 +23,7 @@ const signUp = () => {
   const { setUser, setIsLogged } = useGlobalContext();
   const [isChecked, setChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -78,30 +79,28 @@ const signUp = () => {
             />
           </View>
         </View>
+
         <View style={styles.Box}>
-          <Text style={styles.label}>Password </Text>
-          <View style={styles.touchInput}>
-            <MaterialCommunityIcons
-              name="lock-outline"
-              size={22}
-              color="black"
-            />
-            <TextInput
-              placeholder="Password"
-              secureTextEntry
-              style={styles.input}
-              value={form.password}
-              onChangeText={(text) => setForm({ ...form, password: text })}
-            />
-            <TouchableOpacity>
-              <MaterialCommunityIcons
-                name="eye-off-outline"
-                size={22}
-                color="black"
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
+                  <Text style={styles.label}>Password </Text>
+                  <View style={styles.touchInput}>
+                    <MaterialCommunityIcons
+                      name="lock-outline"
+                      size={22}
+                      color="black"
+                    />
+                    <TextInput
+                      placeholder="Password"
+                      secureTextEntry={!showPassword}
+                      style={styles.input}
+                      value={form.password}
+                      onChangeText={(text) => setForm({ ...form, password: text })}
+                    />
+                    <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
+                      <MaterialCommunityIcons name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
         <View style={styles.boxprivacy}>
           <Checkbox
             style={styles.checkbox}

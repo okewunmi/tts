@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 8,
+    paddingVertical: 5,
     marginBottom: 5
   },
   docImgBox: {

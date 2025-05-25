@@ -12,22 +12,18 @@ const profile = () => {
 
 
   const handleLogout = async () => {
-    try {
-      const user = await getAccount();
-      // Use imported helper
-      if (user) {
-        await signOut();
-        setUser(null);
-        setIsLogged(false);
-      }
-    } catch
-    (error) {
-      console.log("User is not logged in, or logout failed:", error.message);
-      setUser(null);
-      setIsLogged
-        (false);
-    }
-  };
+  try {
+    // Only attempt signOut without calling getAccount() first
+    await signOut();
+    setUser(null);
+    setIsLogged(false);
+  } catch (error) {
+    console.log("Logout failed:", error.message);
+    setUser(null);
+    setIsLogged(false);
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.safe} >
@@ -142,7 +138,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   imgBox: {
-    borderRadius: '100%',
+    borderRadius: 100,
     height: 45,
     width: 45,
     backgroundColor: '#ffff',
@@ -161,8 +157,8 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   heading2: {
-    fontSize: 13,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "700",
   },
   txt: {
     fontSize: 12,

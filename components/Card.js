@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   docImg: {
-    height: 48,
-    width: 48,
+    height: 45,
+    width: 45,
     borderWidth: 1,
     marginRight: 5,
     borderColor: "#dedede",
